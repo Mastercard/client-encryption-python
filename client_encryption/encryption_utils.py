@@ -34,7 +34,7 @@ def load_decryption_key(key_file_path, decryption_key_password=None):
                 private_key = __load_pkcs12_private_key(private_key, decryption_key_password)
 
         return RSA.importKey(private_key)
-    except IOError:
+    except (Error, IOError):
         raise PrivateKeyError("Unable to load key file.")
     except ValueError:
         raise PrivateKeyError("Wrong decryption key format.")

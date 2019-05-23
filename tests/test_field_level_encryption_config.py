@@ -33,10 +33,24 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
 
     def test_load_config_with_key_password(self):
         json_conf = json.loads(self._test_config_file)
-        json_conf["decryptionKeyPassword"] = "key_passwd"
+        json_conf["decryptionKey"] = resource_path("keys/test_key.p12")
+        json_conf["decryptionKeyPassword"] = "Password1"
 
         conf = to_test.FieldLevelEncryptionConfig(json_conf)
-        self.assertEqual("key_passwd", conf.decryption_key_password, "No key password set")
+        self.assertIsNotNone(conf.decryption_key, "No key password set")
+
+    def test_load_config_with_wrong_key_password(self):
+        json_conf = json.loads(self._test_config_file)
+        json_conf["decryptionKey"] = resource_path("keys/test_key.p12")
+        json_conf["decryptionKeyPassword"] = "wrong_passwd"
+
+        self.assertRaises(PrivateKeyError, to_test.FieldLevelEncryptionConfig, json_conf)
+
+    def test_load_config_with_missing_required_key_password(self):
+        json_conf = json.loads(self._test_config_file)
+        json_conf["decryptionKey"] = resource_path("keys/test_key.p12")
+
+        self.assertRaises(PrivateKeyError, to_test.FieldLevelEncryptionConfig, json_conf)
 
     def test_load_config_missing_paths(self):
         wrong_json = json.loads(self._test_config_file)
@@ -98,10 +112,13 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
         self.assertRaises(ValueError, to_test.FieldLevelEncryptionConfig, wrong_json)
 
     def test_load_config_missing_encryption_certificate(self):
-        wrong_json = json.loads(self._test_config_file)
-        del wrong_json["encryptionCertificate"]
+        json_conf = json.loads(self._test_config_file)
+        del json_conf["encryptionCertificate"]
 
-        self.assertRaises(KeyError, to_test.FieldLevelEncryptionConfig, wrong_json)
+        conf = to_test.FieldLevelEncryptionConfig(json_conf)
+        self.assertIsNone(conf.encryption_certificate)
+        self.assertIsNone(conf.encryption_certificate_fingerprint)
+        self.assertIsNone(conf.encryption_key_fingerprint)
 
     def test_load_config_encryption_certificate_file_not_found(self):
         wrong_json = json.loads(self._test_config_file)
@@ -110,10 +127,11 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
         self.assertRaises(CertificateError, to_test.FieldLevelEncryptionConfig, wrong_json)
 
     def test_load_config_missing_decryption_key(self):
-        wrong_json = json.loads(self._test_config_file)
-        del wrong_json["decryptionKey"]
+        json_conf = json.loads(self._test_config_file)
+        del json_conf["decryptionKey"]
 
-        self.assertRaises(KeyError, to_test.FieldLevelEncryptionConfig, wrong_json)
+        conf = to_test.FieldLevelEncryptionConfig(json_conf)
+        self.assertIsNone(conf.decryption_key)
 
     def test_load_config_decryption_key_file_not_found(self):
         wrong_json = json.loads(self._test_config_file)
@@ -176,7 +194,6 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
         self.assertEqual(self._expected_key,
                          conf.decryption_key.export_key(pkcs=8).decode('utf-8').replace("\n", "")[27:-25],
                          "Wrong decryption key")
-        self.assertIsNone(conf.decryption_key_password)
         self.assertEqual("80810fc13a8319fcf0e2ec322c82a4c304b782cc3ce671176343cfe8160c2279",
                          conf.encryption_certificate_fingerprint, "Wrong certificate fingerprint")
         self.assertEqual("761b003c1eade3a5490e5000d37887baa5e6ec0e226c07706e599451fc032a79",

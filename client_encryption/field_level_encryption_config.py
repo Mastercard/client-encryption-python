@@ -23,19 +23,26 @@ class FieldLevelEncryptionConfig(object):
         for path, opt in json_config["paths"].items():
             self._paths[path] = EncryptionPathConfig(opt)
 
-        x509_cert = load_encryption_certificate(json_config["encryptionCertificate"])
-        self._encryption_certificate = dump_certificate(FILETYPE_ASN1, x509_cert)
+        if "encryptionCertificate" in json_config:
+            x509_cert = load_encryption_certificate(json_config["encryptionCertificate"])
+            self._encryption_certificate = dump_certificate(FILETYPE_ASN1, x509_cert)
+            self._encryption_key_fingerprint = \
+                json_config.get("encryptionKeyFingerprint",
+                                self.__compute_fingerprint(
+                                    dump_publickey(FILETYPE_ASN1, x509_cert.get_pubkey())))
+            self._encryption_certificate_fingerprint = \
+                json_config.get("encryptionCertificateFingerprint",
+                                self.__compute_fingerprint(self._encryption_certificate))
+        else:
+            self._encryption_certificate = None
+            self._encryption_key_fingerprint = None
+            self._encryption_certificate_fingerprint = None
 
-        self._encryption_key_fingerprint = \
-            json_config.get("encryptionKeyFingerprint",
-                            self.__compute_fingerprint(
-                                dump_publickey(FILETYPE_ASN1, x509_cert.get_pubkey())))
-        self._encryption_certificate_fingerprint = \
-            json_config.get("encryptionCertificateFingerprint",
-                            self.__compute_fingerprint(self._encryption_certificate))
-
-        self._decryption_key = load_decryption_key(json_config["decryptionKey"])
-        self._decryption_key_password = json_config.get("decryptionKeyPassword", None)
+        if "decryptionKey" in json_config:
+            decryption_key_password = json_config.get("decryptionKeyPassword", None)
+            self._decryption_key = load_decryption_key(json_config["decryptionKey"], decryption_key_password)
+        else:
+            self._decryption_key = None
 
         digest_algo = json_config["oaepPaddingDigestAlgorithm"]
         if load_hash_algorithm(digest_algo) is not None:
@@ -75,10 +82,6 @@ class FieldLevelEncryptionConfig(object):
     @property
     def decryption_key(self):
         return self._decryption_key
-
-    @property
-    def decryption_key_password(self):
-        return self._decryption_key_password
 
     @property
     def oaep_padding_digest_algorithm(self):
