@@ -12,7 +12,7 @@ setup(name='mastercard-client-encryption',
       license='MIT',
       packages=['client_encryption'],
       classifiers=[
-          'Development Status :: 2 - Pre-Alpha',
+          'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',
           'Natural Language :: English',
           'Operating System :: OS Independent',
