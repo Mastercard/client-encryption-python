@@ -41,7 +41,7 @@ As part of this set up, you'll receive:
 
 ### Installation <a name="adding-the-libraries-to-your-project"></a>
 
-If you want to use **mastercard-client-encryption** with [Python](https://www.python.org/), it is available through `pypi`:
+If you want to use **mastercard-client-encryption** with [Python](https://www.python.org/), it is available through `PyPI`:
 
 - [https://pypi.org/project/mastercard-client-encryption](https://pypi.org/project/mastercard-client-encryption)
 
