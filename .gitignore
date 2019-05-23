@@ -64,6 +64,9 @@ instance/
 # Scrapy stuff:
 .scrapy
 
+# Sonar
+.scannerwork/
+
 # Sphinx documentation
 docs/_build/
 
