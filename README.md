@@ -1,10 +1,10 @@
 # client-encryption-python
 
-[![](https://api.travis-ci.org/Mastercard/client-encryption-python.svg?branch=master)](https://api.travis-ci.org/Mastercard/client-encryption-python)
+[![](https://travis-ci.org/Mastercard/client-encryption-python.svg?branch=master)](https://travis-ci.org/Mastercard/client-encryption-python)
 [![](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_client-encryption-python&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mastercard_client-encryption-python)
 [![](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_client-encryption-python&metric=coverage)](https://sonarcloud.io/dashboard?id=Mastercard_client-encryption-python)
 [![](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_client-encryption-python&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Mastercard_client-encryption-python)
-[![](https://img.shields.io/pypy/v/mastercard-client-encryption.svg)](https://pypi.org/project/mastercard-client-encryption)
+[![](https://img.shields.io/pypi/v/mastercard-client-encryption.svg?style=flat&color=blue)](https://pypi.org/project/mastercard-client-encryption)
 [![](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/Mastercard/client-encryption-python/blob/master/LICENSE)
 
 ## Table of Contents
