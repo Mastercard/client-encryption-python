@@ -1,0 +1,22 @@
+{
+  "paths": {
+    "$": {
+      "toEncrypt": {
+        "node1.node2.colour": "node1.node2.enc"
+      },
+      "toDecrypt": {
+        "node1.node2.enc": "node1.node2.plainColour"
+      }
+    }
+  },
+  "ivFieldName": "iv",
+  "encryptedKeyFieldName": "encryptedKey",
+  "encryptedValueFieldName": "encryptedValue",
+  "dataEncoding": "base64",
+  "encryptionCertificate": "certificates/test_certificate-2048.der",
+  "decryptionKey": "keys/test_key_pkcs8-2048.pem",
+  "oaepPaddingDigestAlgorithm": "SHA256",
+  "encryptionCertificateFingerprintFieldName": "certFingerprint",
+  "encryptionKeyFingerprintFieldName": "keyFingerprint",
+  "oaepPaddingDigestAlgorithmFieldName": "oaepHashingAlgo"
+}
