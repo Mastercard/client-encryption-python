@@ -28,9 +28,9 @@ after_success:
       -Dsonar.projectName=$SONAR_PROJECT_NAME \
       -Dsonar.projectKey=$SONAR_PROJECT_KEY \
       -Dsonar.organization=$SONAR_ORGANIZATION_KEY \
-      -Dsonar.sources=./client_encryption \
-      -Dsonar.tests=./tests \
-      -Dsonar.testExecutionReportPaths=tests.xml \
+      -Dsonar.sources=client_encryption \
+      -Dsonar.tests=tests \
+      -Dsonar.python.xunit.reportPaths=tests.xml \
       -Dsonar.python.coverage.reportPaths=coverage.xml \
       -Dsonar.host.url=$SONAR_URL \
       -Dsonar.login=$SONAR_TOKEN || echo 'Skipping Sonar Scanner execution'
