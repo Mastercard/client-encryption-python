@@ -8,6 +8,8 @@ from client_encryption.field_level_encryption import encrypt_payload, decrypt_pa
 class ApiEncryption(object):
 
     def __init__(self, encryption_conf_file):
+        """Load and initialize FieldLevelEncryptionConfig object."""
+
         if type(encryption_conf_file) is dict:
             self._encryption_conf = FieldLevelEncryptionConfig(encryption_conf_file)
         else:
@@ -82,7 +84,7 @@ class ApiEncryption(object):
 
 
 def add_encryption_layer(api_client, encryption_conf_file):
-    """Create and load configuration. Decorate APIClient.request with field level encryption"""
+    """Decorate APIClient.request with field level encryption"""
 
     api_encryption = ApiEncryption(encryption_conf_file)
     api_client.request = api_encryption.field_encryption(api_client.request)
