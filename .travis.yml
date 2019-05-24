@@ -21,6 +21,7 @@ install:
 # command to run tests
 script:
   - coverage run --source=client_encryption/ -m pytest --junitxml=tests.xml
+  - coverage xml -o coverage.xml
 after_success:
   - |
     test "$WITH_SONAR_ANALYSIS" = "true" && sonar-scanner-$SONAR_SCANNER_VERSION/bin/sonar-scanner \
