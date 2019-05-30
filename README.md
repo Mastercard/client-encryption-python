@@ -106,12 +106,10 @@ decrypted_response_payload = decrypt_payload(body, config)
   "paths": {
     "$": {
       "toEncrypt": {
-          "element": "path.to.foo",
-          "obj": "path.to.encryptedFoo"
+          "path.to.foo": "path.to.encryptedFoo"
       },
       "toDecrypt": {
-          "element": "path.to.encryptedFoo",
-          "obj": "path.to.foo"
+          "path.to.encryptedFoo": "path.to.foo"
       }
     }
   },
@@ -158,11 +156,11 @@ Example using the configuration [above](#configuring-the-field-level-encryption)
 from client_encryption.session_key_params import SessionKeyParams
 
 payload = {
-  path: {
-    to: {
-      foo: {
-        sensitiveField1: 'sensitiveValue1',
-        sensitiveField2: 'sensitiveValue2'
+  "path": {
+    "to": {
+      "foo": {
+        "sensitiveField1": "sensitiveValue1",
+        "sensitiveField2": "sensitiveValue2"
       }
     }
   }
@@ -198,14 +196,14 @@ Example using the configuration [above](#configuring-the-field-level-encryption)
 
 ```python
 response = {
-  path: {
-    to: {
-      encryptedFoo: {
-        iv: 'e5d313c056c411170bf07ac82ede78c9',
-        encryptedKey: 'e3a56746c0f9109d18b3a2652b76(...)f16d8afeff36b2479652f5c24ae7bd',
-        encryptedData: '809a09d78257af5379df0c454dcdf(...)353ed59fe72fd4a7735c69da4080e74f',
-        oaepHashingAlgorithm: 'SHA256',
-        publicKeyFingerprint: '80810fc13a8319fcf0e2e(...)3ce671176343cfe8160c2279'
+  "path": {
+    "to": {
+      "encryptedFoo": {
+        "iv": "e5d313c056c411170bf07ac82ede78c9",
+        "encryptedKey": "e3a56746c0f9109d18b3a2652b76(...)f16d8afeff36b2479652f5c24ae7bd",
+        "encryptedData": "809a09d78257af5379df0c454dcdf(...)353ed59fe72fd4a7735c69da4080e74f",
+        "oaepHashingAlgorithm": "SHA256",
+        "publicKeyFingerprint": "80810fc13a8319fcf0e2e(...)3ce671176343cfe8160c2279"
       }
     }
   }
