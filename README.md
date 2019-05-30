@@ -240,7 +240,7 @@ The **client-encryption-python** library provides a method you can use to integr
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
 from client_encryption.api_encryption import add_encryption_layer
 
-api_encryption.add_encryption_layer(api_client, config)
+add_encryption_layer(api_client, config)
 ```
 This method will add the field level encryption in the generated OpenApi client, taking care of encrypting request and decrypting response payloads, but also of updating HTTP headers when needed, automatically, without manually calling `encrypt_payload()`/`decrypt_payload()` functions for each API request or response.
 
@@ -281,7 +281,7 @@ To use it:
    # Create a new instance of the generated client
    api_client = ApiClient()
    # Enable field level encryption
-   api_encryption.add_encryption_layer(api_client, config)
+   add_encryption_layer(api_client, config)
    ```
 
 4. Use the `ApiClient` instance with the Field Level Encryption enabled:
@@ -290,11 +290,42 @@ To use it:
 
    ```python
    request_body = {...}
-   response =MyServiceApi(api_client).do_some_action_post(body=request_body)
+   response = MyServiceApi(api_client).do_some_action_post(body=request_body)
    # requests and responses will be automatically encrypted and decrypted
    # accordingly with the configuration object used
    
    # ... use the (decrypted) response object here ...
+   decrypted = response.json()
+
+   ```
+
+##### Usage of both `add_signing_layer` and `add_encryption_layer`:
+
+In order to use both signing and encryption layers, a defined order is required as signing library should calculate the hash of the encrypted payload.
+According to the above the signing layer must be applied first in order to work as inner layer. The outer layer - encryption - will be executed first, providing the signing layer the encrypted payload to sign.
+
+   Example:
+
+   ```python
+   from oauth1.signer_interceptor import add_signing_layer
+   from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
+   from client_encryption.api_encryption import add_encryption_layer
+   from swagger_client.api_client import ApiClient # import generated swagger ApiClient
+
+   # Read the service configuration file
+   config_file_path = "./config.json"
+   config = FieldLevelEncryptionConfig(config_file_path) 
+
+   # Create a new instance of the generated client
+   api_client = ApiClient()
+
+   # Enable authentication
+   add_signing_layer(api_client, key_file, key_password, consumer_key)
+
+   # Enable field level encryption
+   add_encryption_layer(api_client, config)
+   
+   response = MyServiceApi(api_client).do_some_action_post(body=request_body)
    decrypted = response.json()
 
    ```
