@@ -235,11 +235,30 @@ It provides generators and library templates for supporting multiple languages a
 
 The **client-encryption-python** library provides a method you can use to integrate the OpenAPI generated client with this library:
 ```python
-from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
 from client_encryption.api_encryption import add_encryption_layer
+
+config = {
+  "paths": {
+    "$": {
+      ...
+    }
+  },
+  "ivFieldName": "iv",
+  "encryptedKeyFieldName": "encryptedKey",
+  ...
+  "oaepPaddingDigestAlgorithm": "SHA256"
+}
 
 add_encryption_layer(api_client, config)
 ```
+
+Alternatively you can pass the configuration by a json file:
+```python
+from client_encryption.api_encryption import add_encryption_layer
+
+add_encryption_layer(api_client, "path/to/my/config.json")
+```
+
 This method will add the field level encryption in the generated OpenApi client, taking care of encrypting request and decrypting response payloads, but also of updating HTTP headers when needed, automatically, without manually calling `encrypt_payload()`/`decrypt_payload()` functions for each API request or response.
 
 ##### OpenAPI Generator <a name="openapi-generator"></a>
@@ -265,7 +284,6 @@ To use it:
 2. Import the **mastercard-client-encryption** module and the generated swagger ApiClient
 
    ```python
-   from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
    from client_encryption.api_encryption import add_encryption_layer
    from swagger_client.api_client import ApiClient # import generated swagger ApiClient
    ```
@@ -273,13 +291,10 @@ To use it:
 3. Add the field level encryption layer to the generated client:
 
    ```python
-   # Read the service configuration file
-   config_file_path = "./config.json"
-   config = FieldLevelEncryptionConfig(config_file_path) 
    # Create a new instance of the generated client
    api_client = ApiClient()
    # Enable field level encryption
-   add_encryption_layer(api_client, config)
+   add_encryption_layer(api_client, "path/to/my/config.json")
    ```
 
 4. Use the `ApiClient` instance with the Field Level Encryption enabled:
@@ -308,7 +323,6 @@ According to the above the signing layer must be applied first in order to work 
 
    ```python
    from oauth1.signer_interceptor import add_signing_layer
-   from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
    from client_encryption.api_encryption import add_encryption_layer
    from swagger_client.api_client import ApiClient # import generated swagger ApiClient
    ```
@@ -324,12 +338,7 @@ According to the above the signing layer must be applied first in order to work 
      
 4. Then add the field level encryption layer:
    ```python
-   # Read the service configuration file
-   config_file_path = "./config.json"
-   config = FieldLevelEncryptionConfig(config_file_path) 
-
-   # Enable field level encryption
-   add_encryption_layer(api_client, config)
+   add_encryption_layer(api_client, "path/to/my/config.json")
    ```
 
 5. Use the `ApiClient` instance with Authentication and Field Level Encryption both enabled:
