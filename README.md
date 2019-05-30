@@ -262,7 +262,7 @@ See also:
 
 To use it:
 
-1. Generate the OpenAPI client, as [above](#openapi-generator)
+1. Generate the [OpenAPI client](#openapi-generator)
 
 2. Import the **mastercard-client-encryption** module and the generated swagger ApiClient
 
@@ -304,27 +304,38 @@ To use it:
 In order to use both signing and encryption layers, a defined order is required as signing library should calculate the hash of the encrypted payload.
 According to the above the signing layer must be applied first in order to work as inner layer. The outer layer - encryption - will be executed first, providing the signing layer the encrypted payload to sign.
 
-   Example:
+1. Generate the [OpenAPI client](#openapi-generator)
+
+2. Import both **mastercard-oauth1-signer** and **mastercard-client-encryption** modules and the generated swagger ApiClient
 
    ```python
    from oauth1.signer_interceptor import add_signing_layer
    from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
    from client_encryption.api_encryption import add_encryption_layer
    from swagger_client.api_client import ApiClient # import generated swagger ApiClient
+   ```
 
-   # Read the service configuration file
-   config_file_path = "./config.json"
-   config = FieldLevelEncryptionConfig(config_file_path) 
-
+3. Add the authentication layer to the generated client:
+   ```python
    # Create a new instance of the generated client
    api_client = ApiClient()
 
    # Enable authentication
    add_signing_layer(api_client, key_file, key_password, consumer_key)
+   ```
+     
+4. Then add the field level encryption layer:
+   ```python
+   # Read the service configuration file
+   config_file_path = "./config.json"
+   config = FieldLevelEncryptionConfig(config_file_path) 
 
    # Enable field level encryption
    add_encryption_layer(api_client, config)
-   
+   ```
+
+5. Use the `ApiClient` instance with Authentication and Field Level Encryption both enabled:
+   ```python
    response = MyServiceApi(api_client).do_some_action_post(body=request_body)
    decrypted = response.json()
 
