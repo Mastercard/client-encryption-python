@@ -299,7 +299,7 @@ To use it:
 
    ```
 
-##### Usage of both `add_signing_layer` and `add_encryption_layer`:
+##### Integrate `api_encryption.add_encryption_layer` with `signer_interceptor.add_signing_layer`:
 
 In order to use both signing and encryption layers, a defined order is required as signing library should calculate the hash of the encrypted payload.
 According to the above the signing layer must be applied first in order to work as inner layer. The outer layer - encryption - will be executed first, providing the signing layer the encrypted payload to sign.
