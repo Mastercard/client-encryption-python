@@ -1,5 +1,6 @@
 import json
 from functools import wraps
+from warnings import warn
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
 from client_encryption.session_key_params import SessionKeyParams
 from client_encryption.field_level_encryption import encrypt_payload, decrypt_payload
@@ -34,6 +35,7 @@ class ApiEncryption(object):
 
             return response
 
+        request_function.__fle__ = True
         return request_function
 
     def _encrypt_payload(self, headers, body):
@@ -88,3 +90,20 @@ def add_encryption_layer(api_client, encryption_conf_file):
 
     api_encryption = ApiEncryption(encryption_conf_file)
     api_client.request = api_encryption.field_encryption(api_client.request)
+
+    __check_oauth(api_client)  # warn the user if authentication layer is missing/not set
+
+
+def __check_oauth(api_client):
+    try:
+        oauth_layer = getattr(api_client.request, "__wrapped__").__oauth__
+        if not oauth_layer or type(oauth_layer) is not bool:
+            __oauth_warn()
+    except AttributeError:
+        __oauth_warn()
+
+
+def __oauth_warn():
+    warn("No signing layer detected. Request will be only encrypted without being signed. "
+         "Please refer to "
+         "https://github.com/Mastercard/client-encryption-python#integrating-with-mastercard-oauth1-signer-module")

@@ -1,9 +1,20 @@
 from unittest.mock import Mock
+from functools import wraps
 import json
 from tests import get_config_for_test
 import client_encryption.field_level_encryption as encryption
 import client_encryption.field_level_encryption_config as encryption_config
 from client_encryption.session_key_params import SessionKeyParams
+
+
+def mock_signing(func):
+    """Decorator to mock signing layer and avoid warnings."""
+    @wraps(func)
+    def request_function(*args, **kwargs):
+        return func(*args, **kwargs)
+
+    request_function.__oauth__ = True
+    return request_function
 
 
 class MockService(object):
@@ -41,6 +52,7 @@ class MockApiClient(object):
         json_config["paths"]["$"]["toDecrypt"] = {"encryptedData": "data"}
         self._config = encryption_config.FieldLevelEncryptionConfig(json_config)
 
+    @mock_signing
     def request(self, method, url, query_params=None, headers=None,
                 post_params=None, body=None, _preload_content=True,
                 _request_timeout=None):

@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 import json
 from tests.utils.api_encryption_test_utils import MockApiClient, MockService
 from tests import get_config_for_test, TEST_CONFIG
@@ -328,3 +328,35 @@ class ApiEncryptionTest(unittest.TestCase):
         self.assertIn("secret", response.data["data"])
         self.assertEqual([53, 84, 75], response.data["data"]["secret"])
         self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+
+    @patch('client_encryption.api_encryption.__oauth_warn')
+    def test_add_encryption_layer_oauth_set(self, __oauth_warn):
+        test_client = MockApiClient()
+        to_test.add_encryption_layer(test_client, self._json_config)
+
+        assert not __oauth_warn.called
+
+    def test_add_encryption_layer_missing_oauth_layer_warning(self):
+        test_client = Mock()
+
+        # no __oauth__ flag
+        with self.assertWarns(UserWarning):
+            to_test.add_encryption_layer(test_client, self._json_config)
+
+    def test_add_encryption_layer_wrong_oauth_layer_flag_warning(self):
+        test_client = Mock()
+
+        # __oauth__ is None
+        test_client.request.__oauth__ = None
+        with self.assertWarns(UserWarning):
+            to_test.add_encryption_layer(test_client, self._json_config)
+
+        # __oauth__ is False
+        test_client.request.__oauth__ = False
+        with self.assertWarns(UserWarning):
+            to_test.add_encryption_layer(test_client, self._json_config)
+
+        # __oauth__ is not a boolean
+        test_client.request.__oauth__ = 5
+        with self.assertWarns(UserWarning):
+            to_test.add_encryption_layer(test_client, self._json_config)
