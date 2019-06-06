@@ -151,7 +151,7 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
         json_conf["oaepPaddingDigestAlgorithm"] = oaep_algo_test
 
         conf = to_test.FieldLevelEncryptionConfig(json_conf)
-        self.__check_configuration(conf, oaep_algo=oaep_algo_test)
+        self.__check_configuration(conf, oaep_algo="SHA512")
 
     def test_load_config_wrong_oaep_padding_algorithm(self):
         oaep_algo_test = "sha_512"

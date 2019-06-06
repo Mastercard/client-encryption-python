@@ -18,25 +18,24 @@ class ApiEncryption(object):
                 self._encryption_conf = FieldLevelEncryptionConfig(json_file.read())
 
     def field_encryption(self, func):
-        """Decorator for API request. func is APIClient.request"""
+        """Decorator for API call_api. func is APIClient.call_api"""
 
         @wraps(func)
-        def request_function(*args, **kwargs):
-            """Wrap request and add field encryption layer to it."""
+        def call_api_function(*args, **kwargs):
+            """Wrap call_api and add field encryption layer to it."""
 
             in_body = kwargs.get("body", None)
             kwargs["body"] = self._encrypt_payload(kwargs.get("headers", None), in_body) if in_body else in_body
+            kwargs["_preload_content"] = False
 
             response = func(*args, **kwargs)
 
-            if type(response.data) is not str:
-                response_body = self._decrypt_payload(response.getheaders(), response.json())
-                response._content = json.dumps(response_body, indent=4).encode('utf-8')
+            response_body = self._decrypt_payload(response.getheaders(), response.data)
 
-            return response
+            return response_body
 
-        request_function.__fle__ = True
-        return request_function
+        call_api_function.__fle__ = True
+        return call_api_function
 
     def _encrypt_payload(self, headers, body):
         """Encryption enforcement based on configuration - encrypt and add session key params to header or body"""
@@ -86,10 +85,10 @@ class ApiEncryption(object):
 
 
 def add_encryption_layer(api_client, encryption_conf_file):
-    """Decorate APIClient.request with field level encryption"""
+    """Decorate APIClient.call_api with field level encryption"""
 
     api_encryption = ApiEncryption(encryption_conf_file)
-    api_client.request = api_encryption.field_encryption(api_client.request)
+    api_client.call_api = api_encryption.field_encryption(api_client.call_api)
 
     __check_oauth(api_client)  # warn the user if authentication layer is missing/not set
 

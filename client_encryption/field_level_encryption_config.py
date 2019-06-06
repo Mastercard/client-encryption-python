@@ -2,7 +2,7 @@ import json
 from OpenSSL.crypto import dump_certificate, FILETYPE_ASN1, dump_publickey
 from Crypto.Hash import SHA256
 from client_encryption.encoding_utils import Encoding
-from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key, load_hash_algorithm
+from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key, validate_hash_algorithm
 
 
 class FieldLevelEncryptionConfig(object):
@@ -44,9 +44,7 @@ class FieldLevelEncryptionConfig(object):
         else:
             self._decryption_key = None
 
-        digest_algo = json_config["oaepPaddingDigestAlgorithm"]
-        if load_hash_algorithm(digest_algo) is not None:
-            self._oaep_padding_digest_algorithm = digest_algo
+        self._oaep_padding_digest_algorithm = validate_hash_algorithm(json_config["oaepPaddingDigestAlgorithm"])
 
         data_enc = Encoding(json_config["dataEncoding"].upper())
         self._data_encoding = data_enc

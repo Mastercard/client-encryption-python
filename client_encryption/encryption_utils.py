@@ -54,15 +54,21 @@ def __get_crypto_file_type(file_content):
         return FILETYPE_ASN1
 
 
-def load_hash_algorithm(algo_str):
-    """Load a hash algorithm object of Crypto.Hash from a list of supported ones."""
+def validate_hash_algorithm(algo_str):
+    """Validate a hash algorithm against a list of supported ones."""
 
     if algo_str:
         algo_key = algo_str.replace("-", "").upper()
 
         if algo_key in _SUPPORTED_HASH:
-            return _SUPPORTED_HASH[algo_key]
+            return algo_key
         else:
             raise HashAlgorithmError("Hash algorithm invalid or not supported.")
     else:
         raise HashAlgorithmError("No hash algorithm provided.")
+
+
+def load_hash_algorithm(algo_str):
+    """Load a hash algorithm object of Crypto.Hash from a list of supported ones."""
+
+    return _SUPPORTED_HASH[validate_hash_algorithm(algo_str)]
