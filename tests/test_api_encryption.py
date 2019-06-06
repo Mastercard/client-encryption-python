@@ -170,10 +170,9 @@ class ApiEncryptionTest(unittest.TestCase):
             }
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
-        self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+        self.assertIn("data", response)
+        self.assertIn("secret", response["data"])
+        self.assertEqual(secret2-secret1, response["data"]["secret"])
 
     def test_add_encryption_layer_delete(self):
         secret1 = 394
@@ -187,18 +186,16 @@ class ApiEncryptionTest(unittest.TestCase):
             }
         }, headers={"Content-Type": "application/json"})
 
-        self.assertEqual("OK", response.data)
-        self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+        self.assertEqual("OK", response)
 
     def test_add_encryption_layer_get(self):
         test_client = MockApiClient()
         to_test.add_encryption_layer(test_client, self._json_config)
         response = MockService(test_client).do_something_get(headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual([53, 84, 75], response.data["data"]["secret"])
-        self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+        self.assertIn("data", response)
+        self.assertIn("secret", response["data"])
+        self.assertEqual([53, 84, 75], response["data"]["secret"])
 
     def test_add_header_encryption_layer_post_no_oaep_algo(self):
         self._set_header_params_config()
@@ -216,10 +213,9 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
-        self.assertDictEqual({"Content-Type": "application/json", "x-oaep-digest": "SHA256"}, response.getheaders())
+        self.assertIn("data", response)
+        self.assertIn("secret", response["data"])
+        self.assertEqual(secret2-secret1, response["data"]["secret"])
 
     def test_add_header_encryption_layer_post_no_cert_fingerprint(self):
         self._set_header_params_config()
@@ -237,10 +233,9 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
-        self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+        self.assertIn("data", response)
+        self.assertIn("secret", response["data"])
+        self.assertEqual(secret2-secret1, response["data"]["secret"])
 
     def test_add_header_encryption_layer_post_no_pubkey_fingerprint(self):
         self._set_header_params_config()
@@ -258,10 +253,9 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
-        self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+        self.assertIn("data", response)
+        self.assertIn("secret", response["data"])
+        self.assertEqual(secret2-secret1, response["data"]["secret"])
 
     def test_add_header_encryption_layer_no_iv(self):
         self._set_header_params_config()
@@ -294,10 +288,9 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
-        self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+        self.assertIn("data", response)
+        self.assertIn("secret", response["data"])
+        self.assertEqual(secret2-secret1, response["data"]["secret"])
 
     def test_add_header_encryption_layer_delete(self):
         self._set_header_params_config()
@@ -314,8 +307,7 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertEqual("OK", response.data)
-        self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+        self.assertEqual("OK", response)
 
     def test_add_header_encryption_layer_get(self):
         self._set_header_params_config()
@@ -324,10 +316,9 @@ class ApiEncryptionTest(unittest.TestCase):
         to_test.add_encryption_layer(test_client, self._json_config)
         response = MockService(test_client).do_something_get_use_headers(headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual([53, 84, 75], response.data["data"]["secret"])
-        self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
+        self.assertIn("data", response)
+        self.assertIn("secret", response["data"])
+        self.assertEqual([53, 84, 75], response["data"]["secret"])
 
     @patch('client_encryption.api_encryption.__oauth_warn')
     def test_add_encryption_layer_oauth_set(self, __oauth_warn):

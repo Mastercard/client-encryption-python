@@ -53,7 +53,10 @@ def decrypt_payload(payload, config, _params=None):
         if type(payload) is dict:
             json_payload = payload
         else:
-            json_payload = json.loads(payload)
+            try:
+                json_payload = json.loads(payload)
+            except json.JSONDecodeError:  # not a json response - return it as is
+                return payload
 
         for elem, target in config.paths["$"].to_decrypt.items():
             try:
@@ -90,7 +93,7 @@ def decrypt_payload(payload, config, _params=None):
         return json_payload
 
     except (IOError, ValueError, TypeError) as e:
-        raise EncryptionError("Payload encryption failed!", e)
+        raise EncryptionError("Payload decryption failed!", e)
 
 
 def _encrypt_value(_key, iv, node_str):

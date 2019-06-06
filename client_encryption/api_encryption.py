@@ -25,7 +25,7 @@ class ApiEncryption(object):
             """Wrap call_api and add field encryption layer to it."""
 
             in_body = kwargs.get("body", None)
-            kwargs["body"] = self._encrypt_payload(kwargs.get("headers", None), in_body) if in_body else in_body
+            kwargs["body"] = self._encrypt_payload(kwargs.get("header_params", None), in_body) if in_body else in_body
             kwargs["_preload_content"] = False
 
             response = func(*args, **kwargs)
@@ -95,9 +95,7 @@ def add_encryption_layer(api_client, encryption_conf_file):
 
 def __check_oauth(api_client):
     try:
-        oauth_layer = getattr(api_client.request, "__wrapped__").__oauth__
-        if not oauth_layer or type(oauth_layer) is not bool:
-            __oauth_warn()
+        api_client.request.__wrapped__
     except AttributeError:
         __oauth_warn()
 
