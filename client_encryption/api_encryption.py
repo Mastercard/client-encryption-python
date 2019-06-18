@@ -29,10 +29,9 @@ class ApiEncryption(object):
             kwargs["_preload_content"] = False
 
             response = func(*args, **kwargs)
+            response._body = self._decrypt_payload(response.getheaders(), response.data)
 
-            response_body = self._decrypt_payload(response.getheaders(), response.data)
-
-            return response_body
+            return response
 
         call_api_function.__fle__ = True
         return call_api_function
@@ -61,6 +60,7 @@ class ApiEncryption(object):
         """Encryption enforcement based on configuration - decrypt using session key params from header or body"""
 
         conf = self._encryption_conf
+        params = None
 
         if conf.use_http_headers:
             if conf.iv_field_name in headers and conf.encrypted_key_field_name in headers:
@@ -74,12 +74,12 @@ class ApiEncryption(object):
                     del headers[conf.encryption_key_fingerprint_field_name]
 
                 params = SessionKeyParams(conf, encrypted_key, iv, oaep_digest_algo)
-                payload = decrypt_payload(body, conf, params)
             else:
-                # skip decryption if not iv nor key is in headers
-                payload = body
-        else:
-            payload = decrypt_payload(body, conf)
+                # skip decryption and return original body if not iv nor key is in headers
+                return body
+
+        decrypted_body = decrypt_payload(body, conf, params)
+        payload = json.dumps(decrypted_body, indent=4).encode('utf-8')
 
         return payload
 
