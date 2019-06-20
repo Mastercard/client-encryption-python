@@ -102,7 +102,6 @@ class MockApiClient(object):
 
         if method in ["GET", "POST", "PUT"]:
             response.data = json_resp
-            response.json = Mock(return_value=json_resp)
         else:
             response.data = "OK" if check == 0 else "KO"
 
