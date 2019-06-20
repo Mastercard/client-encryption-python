@@ -62,14 +62,14 @@ class ApiEncryptionTest(unittest.TestCase):
 
         test_headers = {"Content-Type": "application/json"}
 
-        decrypted = api_encryption._decrypt_payload(body={
+        decrypted = json.loads(api_encryption._decrypt_payload(body={
             "encryptedData": {
                 "iv": "uldLBySPY3VrznePihFYGQ==",
                 "encryptedKey": "Jmh/bQPScUVFHSC9qinMGZ4lM7uetzUXcuMdEpC5g4C0Pb9HuaM3zC7K/509n7RTBZUPEzgsWtgi7m33nhpXsUo8WMcQkBIZlKn3ce+WRyZpZxcYtVoPqNn3benhcv7cq7yH1ktamUiZ5Dq7Ga+oQCaQEsOXtbGNS6vA5Bwa1pjbmMiRIbvlstInz8XTw8h/T0yLBLUJ0yYZmzmt+9i8qL8KFQ/PPDe5cXOCr1Aq2NTSixe5F2K/EI00q6D7QMpBDC7K6zDWgAOvINzifZ0DTkxVe4EE6F+FneDrcJsj+ZeIabrlRcfxtiFziH6unnXktta0sB1xcszIxXdMDbUcJA==",
                 "encryptedValue": "KGfmdUWy89BwhQChzqZJ4w==",
                 "oaepHashingAlgo": "SHA256"
             }
-        }, headers=test_headers)
+        }, headers=test_headers))
 
         self.assertNotIn("encryptedData", decrypted)
         self.assertDictEqual({"data": {}}, decrypted)
@@ -112,11 +112,11 @@ class ApiEncryptionTest(unittest.TestCase):
                         }
 
         api_encryption = to_test.ApiEncryption(self._json_config)
-        decrypted = api_encryption._decrypt_payload(body={
+        decrypted = json.loads(api_encryption._decrypt_payload(body={
             "encryptedData": {
                 "encryptedValue": "KGfmdUWy89BwhQChzqZJ4w=="
             }
-        }, headers=test_headers)
+        }, headers=test_headers))
 
         self.assertNotIn("encryptedData", decrypted)
         self.assertDictEqual({"data": {}}, decrypted)

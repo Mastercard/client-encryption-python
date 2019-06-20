@@ -1,6 +1,6 @@
 from binascii import Error
 from Crypto.Cipher import PKCS1_OAEP, AES
-from Crypto import Random
+from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
 from client_encryption.encoding_utils import encode_bytes, decode_value
 from client_encryption.encryption_utils import load_hash_algorithm
@@ -62,11 +62,11 @@ class SessionKeyParams(object):
         encoding = config.data_encoding
 
         # Generate a random IV
-        iv = Random.new().read(SessionKeyParams._BLOCK_SIZE)
+        iv = get_random_bytes(SessionKeyParams._BLOCK_SIZE)
         iv_encoded = encode_bytes(iv, encoding)
 
         # Generate an AES secret key
-        secret_key = Random.new().read(SessionKeyParams._KEY_SIZE)
+        secret_key = get_random_bytes(SessionKeyParams._KEY_SIZE)
 
         # Encrypt the secret key
         secret_key_encrypted = SessionKeyParams.__wrap_secret_key(secret_key, config)

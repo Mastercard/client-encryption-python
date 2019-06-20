@@ -131,6 +131,30 @@ class EncryptionUtilsTest(unittest.TestCase):
     def test_load_hash_algorithm_none(self):
         self.assertRaises(HashAlgorithmError, to_test.load_hash_algorithm, None)
 
+    def test_validate_hash_algorithm(self):
+        hash_algo = to_test.validate_hash_algorithm("SHA224")
+
+        self.assertEqual(hash_algo, "SHA224")
+
+    def test_validate_hash_algorithm_dash(self):
+        hash_algo = to_test.validate_hash_algorithm("SHA-512")
+
+        self.assertEqual(hash_algo, "SHA512")
+
+    def test_validate_hash_algorithm_lowercase(self):
+        hash_algo = to_test.validate_hash_algorithm("sha384")
+
+        self.assertEqual(hash_algo, "SHA384")
+
+    def test_validate_hash_algorithm_not_supported(self):
+        self.assertRaises(HashAlgorithmError, to_test.validate_hash_algorithm, "MD5")
+
+    def test_validate_hash_algorithm_underscore(self):
+        self.assertRaises(HashAlgorithmError, to_test.validate_hash_algorithm, "SHA_512")
+
+    def test_validate_hash_algorithm_none(self):
+        self.assertRaises(HashAlgorithmError, to_test.validate_hash_algorithm, None)
+
     @staticmethod
     def __strip_key(rsa_key):
         return rsa_key.export_key(pkcs=8).decode('utf-8').replace("\n", "")[27:-25]

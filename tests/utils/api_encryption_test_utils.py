@@ -25,22 +25,22 @@ class MockService(object):
         self.api_client = api_client
 
     def do_something_get(self, **kwargs):
-        return self.api_client.request("GET", "localhost/testservice", headers=kwargs["headers"])
+        return self.api_client.call_api("testservice", "GET", header_params=kwargs["headers"])
 
     def do_something_post(self, **kwargs):
-        return self.api_client.request("POST", "localhost/testservice", headers=kwargs["headers"], body=kwargs["body"])
+        return self.api_client.call_api("testservice", "POST", header_params=kwargs["headers"], body=kwargs["body"])
 
     def do_something_delete(self, **kwargs):
-        return self.api_client.request("DELETE", "localhost/testservice", headers=kwargs["headers"], body=kwargs["body"])
+        return self.api_client.call_api("testservice", "DELETE", header_params=kwargs["headers"], body=kwargs["body"])
 
     def do_something_get_use_headers(self, **kwargs):
-        return self.api_client.request("GET", "localhost/testservice/headers", headers=kwargs["headers"])
+        return self.api_client.call_api("testservice/headers", "GET", header_params=kwargs["headers"])
 
     def do_something_post_use_headers(self, **kwargs):
-        return self.api_client.request("POST", "localhost/testservice/headers", headers=kwargs["headers"], body=kwargs["body"])
+        return self.api_client.call_api("testservice/headers", "POST", header_params=kwargs["headers"], body=kwargs["body"])
 
     def do_something_delete_use_headers(self, **kwargs):
-        return self.api_client.request("DELETE", "localhost/testservice/headers", headers=kwargs["headers"], body=kwargs["body"])
+        return self.api_client.call_api("testservice/headers", "DELETE", header_params=kwargs["headers"], body=kwargs["body"])
 
 
 class MockApiClient(object):
@@ -56,13 +56,21 @@ class MockApiClient(object):
     def request(self, method, url, query_params=None, headers=None,
                 post_params=None, body=None, _preload_content=True,
                 _request_timeout=None):
+        pass
+
+    def call_api(self, resource_path, method,
+                 path_params=None, query_params=None, header_params=None,
+                 body=None, post_params=None, files=None,
+                 response_type=None, auth_settings=None, async_req=None,
+                 _return_http_data_only=None, collection_formats=None,
+                 _preload_content=True, _request_timeout=None):
         check = -1
 
         if body:
-            if url == "localhost/testservice/headers":
-                iv = headers["x-iv"]
-                encrypted_key = headers["x-key"]
-                oaep_digest_algo = headers["x-oaep-digest"] if "x-oaep-digest" in headers else None
+            if resource_path == "testservice/headers":
+                iv = header_params["x-iv"]
+                encrypted_key = header_params["x-key"]
+                oaep_digest_algo = header_params["x-oaep-digest"] if "x-oaep-digest" in header_params else None
 
                 params = SessionKeyParams(self._config, encrypted_key, iv, oaep_digest_algo)
             else:
@@ -74,7 +82,7 @@ class MockApiClient(object):
         else:
             res = {"data": {"secret": [53, 84, 75]}}
 
-        if url == "localhost/testservice/headers" and method in ["GET", "POST", "PUT"]:
+        if resource_path == "testservice/headers" and method in ["GET", "POST", "PUT"]:
             params = SessionKeyParams.generate(self._config)
             json_resp = encryption.encrypt_payload(res, self._config, params)
 
@@ -94,7 +102,6 @@ class MockApiClient(object):
 
         if method in ["GET", "POST", "PUT"]:
             response.data = json_resp
-            response.json = Mock(return_value=json_resp)
         else:
             response.data = "OK" if check == 0 else "KO"
 

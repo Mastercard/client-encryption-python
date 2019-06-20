@@ -18,25 +18,23 @@ class ApiEncryption(object):
                 self._encryption_conf = FieldLevelEncryptionConfig(json_file.read())
 
     def field_encryption(self, func):
-        """Decorator for API request. func is APIClient.request"""
+        """Decorator for API call_api. func is APIClient.call_api"""
 
         @wraps(func)
-        def request_function(*args, **kwargs):
-            """Wrap request and add field encryption layer to it."""
+        def call_api_function(*args, **kwargs):
+            """Wrap call_api and add field encryption layer to it."""
 
             in_body = kwargs.get("body", None)
-            kwargs["body"] = self._encrypt_payload(kwargs.get("headers", None), in_body) if in_body else in_body
+            kwargs["body"] = self._encrypt_payload(kwargs.get("header_params", None), in_body) if in_body else in_body
+            kwargs["_preload_content"] = False
 
             response = func(*args, **kwargs)
-
-            if type(response.data) is not str:
-                response_body = self._decrypt_payload(response.getheaders(), response.json())
-                response._content = json.dumps(response_body, indent=4).encode('utf-8')
+            response._body = self._decrypt_payload(response.getheaders(), response.data)
 
             return response
 
-        request_function.__fle__ = True
-        return request_function
+        call_api_function.__fle__ = True
+        return call_api_function
 
     def _encrypt_payload(self, headers, body):
         """Encryption enforcement based on configuration - encrypt and add session key params to header or body"""
@@ -62,6 +60,7 @@ class ApiEncryption(object):
         """Encryption enforcement based on configuration - decrypt using session key params from header or body"""
 
         conf = self._encryption_conf
+        params = None
 
         if conf.use_http_headers:
             if conf.iv_field_name in headers and conf.encrypted_key_field_name in headers:
@@ -75,30 +74,28 @@ class ApiEncryption(object):
                     del headers[conf.encryption_key_fingerprint_field_name]
 
                 params = SessionKeyParams(conf, encrypted_key, iv, oaep_digest_algo)
-                payload = decrypt_payload(body, conf, params)
             else:
-                # skip decryption if not iv nor key is in headers
-                payload = body
-        else:
-            payload = decrypt_payload(body, conf)
+                # skip decryption and return original body if not iv nor key is in headers
+                return body
+
+        decrypted_body = decrypt_payload(body, conf, params)
+        payload = json.dumps(decrypted_body).encode('utf-8')
 
         return payload
 
 
 def add_encryption_layer(api_client, encryption_conf_file):
-    """Decorate APIClient.request with field level encryption"""
+    """Decorate APIClient.call_api with field level encryption"""
 
     api_encryption = ApiEncryption(encryption_conf_file)
-    api_client.request = api_encryption.field_encryption(api_client.request)
+    api_client.call_api = api_encryption.field_encryption(api_client.call_api)
 
     __check_oauth(api_client)  # warn the user if authentication layer is missing/not set
 
 
 def __check_oauth(api_client):
     try:
-        oauth_layer = getattr(api_client.request, "__wrapped__").__oauth__
-        if not oauth_layer or type(oauth_layer) is not bool:
-            __oauth_warn()
+        api_client.request.__wrapped__
     except AttributeError:
         __oauth_warn()
 
