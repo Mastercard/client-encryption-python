@@ -79,7 +79,7 @@ class ApiEncryption(object):
                 return body
 
         decrypted_body = decrypt_payload(body, conf, params)
-        payload = json.dumps(decrypted_body, indent=4).encode('utf-8')
+        payload = json.dumps(decrypted_body).encode('utf-8')
 
         return payload
 
