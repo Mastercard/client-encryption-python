@@ -25,7 +25,7 @@ class ApiEncryption(object):
             """Wrap call_api and add field encryption layer to it."""
 
             in_body = kwargs.get("body", None)
-            kwargs["body"] = self._encrypt_payload(kwargs.get("header_params", None), in_body) if in_body else in_body
+            kwargs["body"] = self._encrypt_payload(args[4], in_body) if in_body else in_body
             kwargs["_preload_content"] = False
 
             response = func(*args, **kwargs)
@@ -44,13 +44,20 @@ class ApiEncryption(object):
         if conf.use_http_headers:
             params = SessionKeyParams.generate(conf)
 
-            headers[conf.iv_field_name] = params.iv_value
-            headers[conf.encrypted_key_field_name] = params.encrypted_key_value
-            headers[conf.encryption_certificate_fingerprint_field_name] = conf.encryption_certificate_fingerprint
-            headers[conf.encryption_key_fingerprint_field_name] = conf.encryption_key_fingerprint
-            headers[conf.oaep_padding_digest_algorithm_field_name] = conf.oaep_padding_digest_algorithm
+            encryption_params = {
+                conf.iv_field_name: params.iv_value,
+                conf.encrypted_key_field_name: params.encrypted_key_value
+            }
+            if conf.encryption_certificate_fingerprint_field_name:
+                encryption_params[conf.encryption_certificate_fingerprint_field_name] = \
+                    conf.encryption_certificate_fingerprint
+            if conf.encryption_key_fingerprint_field_name:
+                encryption_params[conf.encryption_key_fingerprint_field_name] = conf.encryption_key_fingerprint
+            if conf.oaep_padding_digest_algorithm_field_name:
+                encryption_params[conf.oaep_padding_digest_algorithm_field_name] = conf.oaep_padding_digest_algorithm
 
             encrypted_payload = encrypt_payload(body, conf, params)
+            headers.update(encryption_params)
         else:
             encrypted_payload = encrypt_payload(body, conf)
 
@@ -67,10 +74,10 @@ class ApiEncryption(object):
                 iv = headers.pop(conf.iv_field_name)
                 encrypted_key = headers.pop(conf.encrypted_key_field_name)
                 oaep_digest_algo = headers.pop(conf.oaep_padding_digest_algorithm_field_name) \
-                    if conf.oaep_padding_digest_algorithm_field_name in headers else None
-                if conf.encryption_certificate_fingerprint_field_name in headers:
+                    if _contains_param(conf.oaep_padding_digest_algorithm_field_name, headers) else None
+                if _contains_param(conf.encryption_certificate_fingerprint_field_name, headers):
                     del headers[conf.encryption_certificate_fingerprint_field_name]
-                if conf.encryption_key_fingerprint_field_name in headers:
+                if _contains_param(conf.encryption_key_fingerprint_field_name, headers):
                     del headers[conf.encryption_key_fingerprint_field_name]
 
                 params = SessionKeyParams(conf, encrypted_key, iv, oaep_digest_algo)
@@ -82,6 +89,9 @@ class ApiEncryption(object):
         payload = json.dumps(decrypted_body).encode('utf-8')
 
         return payload
+
+
+def _contains_param(param_name, headers): return param_name and param_name in headers
 
 
 def add_encryption_layer(api_client, encryption_conf_file):

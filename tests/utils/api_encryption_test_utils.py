@@ -25,22 +25,22 @@ class MockService(object):
         self.api_client = api_client
 
     def do_something_get(self, **kwargs):
-        return self.api_client.call_api("testservice", "GET", header_params=kwargs["headers"])
+        return self.api_client.call_api("testservice", "GET", None, None, kwargs["headers"])
 
     def do_something_post(self, **kwargs):
-        return self.api_client.call_api("testservice", "POST", header_params=kwargs["headers"], body=kwargs["body"])
+        return self.api_client.call_api("testservice", "POST", None, None, kwargs["headers"], body=kwargs["body"])
 
     def do_something_delete(self, **kwargs):
-        return self.api_client.call_api("testservice", "DELETE", header_params=kwargs["headers"], body=kwargs["body"])
+        return self.api_client.call_api("testservice", "DELETE", None, None, kwargs["headers"], body=kwargs["body"])
 
     def do_something_get_use_headers(self, **kwargs):
-        return self.api_client.call_api("testservice/headers", "GET", header_params=kwargs["headers"])
+        return self.api_client.call_api("testservice/headers", "GET", None, None, kwargs["headers"])
 
     def do_something_post_use_headers(self, **kwargs):
-        return self.api_client.call_api("testservice/headers", "POST", header_params=kwargs["headers"], body=kwargs["body"])
+        return self.api_client.call_api("testservice/headers", "POST", None, None, kwargs["headers"], body=kwargs["body"])
 
     def do_something_delete_use_headers(self, **kwargs):
-        return self.api_client.call_api("testservice/headers", "DELETE", header_params=kwargs["headers"], body=kwargs["body"])
+        return self.api_client.call_api("testservice/headers", "DELETE", None, None, kwargs["headers"], body=kwargs["body"])
 
 
 class MockApiClient(object):
