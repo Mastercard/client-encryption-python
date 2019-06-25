@@ -22,7 +22,7 @@
 This is the Python version of the Mastercard compliant payload encryption/decryption.
 
 ### Compatibility <a name="compatibility"></a>
-Python 3.6, 3.7
+Python 3.6, 3.7, 3.8
 
 ### References <a name="references"></a>
 
@@ -125,11 +125,13 @@ decrypted_response_payload = decrypt_payload(body, config)
 
 The above can be either stored to a file or passed to 'FieldLevelEncryptionConfig' as dictionary:
 ```python
-config_dictionary = {"paths": {...},
-                    (...)
-                    "decryptionKey": "./path/to/your/private.key",
-                    "oaepPaddingDigestAlgorithm": "SHA256"
+config_dictionary = {
+                        "paths": {...},
+                        (...)
+                        "decryptionKey": "./path/to/your/private.key",
+                        "oaepPaddingDigestAlgorithm": "SHA256"
                     }
+                    
 config = FieldLevelEncryptionConfig(config_dictionary)
 
 config_file_path = "./config.json"
@@ -263,7 +265,7 @@ This method will add the field level encryption in the generated OpenApi client,
 
 ##### OpenAPI Generator <a name="openapi-generator"></a>
 
-OpenAPI client can be generated, starting from your OpenAPI Spec / Swagger using the following command:
+OpenAPI client can be generated, starting from your OpenAPI Spec using the following command:
 
 ```shell
 java -jar openapi-generator-cli.jar generate -i openapi-spec.yaml -l python -o out
@@ -281,11 +283,11 @@ To use it:
 
 1. Generate the [OpenAPI client](#openapi-generator)
 
-2. Import the **mastercard-client-encryption** module and the generated swagger ApiClient
+2. Import the **mastercard-client-encryption** module and the generated OpenAPI client
 
    ```python
    from client_encryption.api_encryption import add_encryption_layer
-   from swagger_client.api_client import ApiClient # import generated swagger ApiClient
+   from openapi_client.api_client import ApiClient # import generated OpenAPI client
    ```
 
 3. Add the field level encryption layer to the generated client:
@@ -319,12 +321,12 @@ According to the above the signing layer must be applied first in order to work 
 
 1. Generate the [OpenAPI client](#openapi-generator)
 
-2. Import both **mastercard-oauth1-signer** and **mastercard-client-encryption** modules and the generated swagger ApiClient
+2. Import both **mastercard-oauth1-signer** and **mastercard-client-encryption** modules and the generated OpenAPI client
 
    ```python
    from oauth1.signer_interceptor import add_signing_layer
    from client_encryption.api_encryption import add_encryption_layer
-   from swagger_client.api_client import ApiClient # import generated swagger ApiClient
+   from openapi_client.api_client import ApiClient # import generated OpenAPI client
    ```
 
 3. Add the authentication layer to the generated client:
