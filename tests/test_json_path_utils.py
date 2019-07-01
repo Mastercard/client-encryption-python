@@ -206,7 +206,7 @@ class JsonPathUtilsTest(unittest.TestCase):
         original_json = self.__get_sample_json()
 
         sample_json = self.__get_sample_json()
-        node = to_test.cleanup_node(sample_json, "node1.node2.colour")
+        node = to_test.cleanup_node(sample_json, "node1.node2.colour", "target")
         self.assertIsInstance(node, dict, "Not a dictionary")
         self.assertDictEqual(original_json, node)
         self.assertDictEqual(original_json, sample_json)
@@ -215,20 +215,49 @@ class JsonPathUtilsTest(unittest.TestCase):
         del sample_json["node1"]["node2"]["colour"]
         del sample_json["node1"]["node2"]["shape"]
         del sample_json["node1"]["node2"]["position"]
-        node = to_test.cleanup_node(sample_json, "node1.node2")
+        node = to_test.cleanup_node(sample_json, "node1.node2", "target")
         self.assertIsInstance(node, dict, "Not a dictionary")
         self.assertDictEqual({"node1": {}}, node)
         self.assertDictEqual({"node1": {}}, sample_json)
 
+    def test_cleanup_node_in_target(self):
+        sample_json = self.__get_sample_json()
+        del sample_json["node1"]["node2"]["colour"]
+        del sample_json["node1"]["node2"]["shape"]
+        del sample_json["node1"]["node2"]["position"]
+        node = to_test.cleanup_node(sample_json, "node1.node2", "node1.node2.target")
+        self.assertIsInstance(node, dict, "Not a dictionary")
+        self.assertDictEqual({"node1": {"node2": {}}}, node)
+        self.assertDictEqual({"node1": {"node2": {}}}, sample_json)
+
     def test_cleanup_node_empty_path(self):
         sample_json = self.__get_sample_json()
-        self.assertRaises(ValueError, to_test.cleanup_node, sample_json, None)
+        self.assertRaises(ValueError, to_test.cleanup_node, sample_json, None, "target")
 
         sample_json = self.__get_sample_json()
-        self.assertRaises(ValueError, to_test.cleanup_node, sample_json, "")
+        self.assertRaises(ValueError, to_test.cleanup_node, sample_json, "", "target")
+
+    def test_cleanup_node_empty_target(self):
+        sample_json = self.__get_sample_json()
+        del sample_json["node1"]["node2"]["colour"]
+        del sample_json["node1"]["node2"]["shape"]
+        del sample_json["node1"]["node2"]["position"]
+        node = to_test.cleanup_node(sample_json, "node1.node2", None)
+        self.assertIsInstance(node, dict, "Not a dictionary")
+        self.assertDictEqual({"node1": {}}, node)
+        self.assertDictEqual({"node1": {}}, sample_json)
+
+        sample_json = self.__get_sample_json()
+        del sample_json["node1"]["node2"]["colour"]
+        del sample_json["node1"]["node2"]["shape"]
+        del sample_json["node1"]["node2"]["position"]
+        node = to_test.cleanup_node(sample_json, "node1.node2", "")
+        self.assertIsInstance(node, dict, "Not a dictionary")
+        self.assertDictEqual({"node1": {}}, node)
+        self.assertDictEqual({"node1": {}}, sample_json)
 
     def test_cleanup_node_not_existing(self):
         sample_json = self.__get_sample_json()
 
-        self.assertRaises(KeyError, to_test.pop_node, sample_json, "node0")
-        self.assertRaises(KeyError, to_test.pop_node, sample_json, "node1.node2.node3")
+        self.assertRaises(KeyError, to_test.cleanup_node, sample_json, "node0", "target")
+        self.assertRaises(KeyError, to_test.cleanup_node, sample_json, "node1.node2.node3", "target")

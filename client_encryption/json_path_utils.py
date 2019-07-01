@@ -69,19 +69,20 @@ def pop_node(tree, path):
         return node
 
 
-def cleanup_node(tree, path):
-    """Remove a node if no child is found give a path"""
+def cleanup_node(tree, path, target):
+    """Remove a node if not in target path and no child is found given a path"""
 
     if path and __not_root(path):
-        parent = path.split(_SEPARATOR)
-        to_delete = parent.pop()
-        if parent:
-            node = __get_node(tree, parent, False)
-        else:
-            node = tree
+        if not (target and target.startswith(path)):
+            parent = path.split(_SEPARATOR)
+            to_delete = parent.pop()
+            if parent:
+                node = __get_node(tree, parent, False)
+            else:
+                node = tree
 
-        if not node[to_delete]:
-            del node[to_delete]
+            if not node[to_delete]:
+                del node[to_delete]
 
     elif not path:
         raise ValueError("Cannot accept empty path")
