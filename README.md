@@ -22,7 +22,7 @@
 This is the Python version of the Mastercard compliant payload encryption/decryption.
 
 ### Compatibility <a name="compatibility"></a>
-Python 3.6, 3.7, 3.8
+Python 3.6+
 
 ### References <a name="references"></a>
 
