@@ -71,7 +71,7 @@ def decrypt_payload(payload, config, _params=None):
                 else:
                     params = _params
 
-                cleanup_node(json_payload, elem)
+                cleanup_node(json_payload, elem, target)
 
                 try:
                     update_node(json_payload, target, _decrypt_bytes(params.key, params.iv_spec, cipher_text))
