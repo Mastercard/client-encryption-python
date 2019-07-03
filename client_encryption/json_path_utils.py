@@ -8,15 +8,18 @@ _ROOT_SYMBOL = "$"
 def __not_root(path): return path != _ROOT_SYMBOL
 
 
+def __target_in_path(path, target): return target and target.startswith(path)
+
+
 def get_node(tree, path, create=False):
     """Retrieve json or value given a path"""
 
-    current = tree
-    if path and __not_root(path):
-        current = __get_node(tree, path.split(_SEPARATOR), create)
-
-    elif not path:
+    if not path:
         raise ValueError("Cannot accept empty path")
+
+    current = tree
+    if __not_root(path):
+        current = __get_node(tree, path.split(_SEPARATOR), create)
 
     return current
 
@@ -24,7 +27,9 @@ def get_node(tree, path, create=False):
 def update_node(tree, path, node_str):
     """Update node with json or value in string format given a path"""
 
-    if path and __not_root(path):
+    __check_path_not_empty(path)
+
+    if __not_root(path):
         parent = path.split(_SEPARATOR)
         to_set = parent.pop()
         if parent:
@@ -37,9 +42,6 @@ def update_node(tree, path, node_str):
         else:
             current_node[to_set] = json.loads(node_str)
 
-    elif not path:
-        raise ValueError("Cannot accept empty path")
-
     else:
         tree.clear()
         tree.update(json.loads(node_str))
@@ -50,7 +52,9 @@ def update_node(tree, path, node_str):
 def pop_node(tree, path):
     """Retrieve and delete json or value given a path"""
 
-    if path and __not_root(path):
+    __check_path_not_empty(path)
+
+    if __not_root(path):
         parent = path.split(_SEPARATOR)
         to_delete = parent.pop()
         if parent:
@@ -59,9 +63,6 @@ def pop_node(tree, path):
             node = tree
 
         return json.dumps(node.pop(to_delete))
-
-    elif not path:
-        raise ValueError("Cannot accept empty path")
 
     else:
         node = json.dumps(tree)
@@ -72,8 +73,10 @@ def pop_node(tree, path):
 def cleanup_node(tree, path, target):
     """Remove a node if not in target path and no child is found given a path"""
 
-    if path and __not_root(path):
-        if not (target and target.startswith(path)):
+    __check_path_not_empty(path)
+
+    if __not_root(path):
+        if not __target_in_path(path, target):
             parent = path.split(_SEPARATOR)
             to_delete = parent.pop()
             if parent:
@@ -83,9 +86,6 @@ def cleanup_node(tree, path, target):
 
             if not node[to_delete]:
                 del node[to_delete]
-
-    elif not path:
-        raise ValueError("Cannot accept empty path")
 
     else:
         if not tree:
@@ -108,3 +108,8 @@ def __get_node(tree, node_list, create):
         current[last_node] = {}
 
     return current[last_node]
+
+
+def __check_path_not_empty(path):
+    if not path:
+        raise ValueError("Cannot accept empty path")
