@@ -109,3 +109,6 @@ venv.bak/
 
 *.iml
 .idea
+
+# Visual Studio
+.vs

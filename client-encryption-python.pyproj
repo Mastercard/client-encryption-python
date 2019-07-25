@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{43298c1a-86ab-4d9d-87fa-f969332c5ef8}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>setup.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|PythonCore|3.7-32</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="requirements.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="client_encryption\api_encryption.py" />
+    <Compile Include="client_encryption\encoding_utils.py" />
+    <Compile Include="client_encryption\encryption_exception.py" />
+    <Compile Include="client_encryption\encryption_utils.py" />
+    <Compile Include="client_encryption\field_level_encryption.py" />
+    <Compile Include="client_encryption\field_level_encryption_config.py" />
+    <Compile Include="client_encryption\json_path_utils.py" />
+    <Compile Include="client_encryption\session_key_params.py" />
+    <Compile Include="client_encryption\version.py" />
+    <Compile Include="client_encryption\__init__.py" />
+    <Compile Include="setup.py" />
+    <Compile Include="tests\test_api_encryption.py" />
+    <Compile Include="tests\test_encoding_utils.py" />
+    <Compile Include="tests\test_encryption_utils.py" />
+    <Compile Include="tests\test_field_level_encryption.py" />
+    <Compile Include="tests\test_field_level_encryption_config.py" />
+    <Compile Include="tests\test_json_path_utils.py" />
+    <Compile Include="tests\test_session_key_params.py" />
+    <Compile Include="tests\utils\api_encryption_test_utils.py" />
+    <Compile Include="tests\__init__.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="client_encryption" />
+    <Folder Include="tests" />
+    <Folder Include="tests\utils" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|PythonCore|3.7-32" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>
