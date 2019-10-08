@@ -696,6 +696,25 @@ class FieldLevelEncryptionTest(unittest.TestCase):
 
         self.assertDictEqual({"field1": "value1", "field2": "value2"}, payload)
 
+    def test_DecryptPayload_ShouldOverwriteInputObject_WhenOutPathSameAsInPath_PrimitiveTypeData(self):
+        self._config._paths["$"]._to_decrypt = {"data": "data"}
+        self._config._data_encoding = Encoding.HEX
+
+        encrypted_payload = {
+            "data": {
+                "encryptedValue": "741a932b1ed546072384eef82f42c781",
+                "encryptedKey": "0069fd96179b119cda77ec56be29b184d25c639af27c1f59b6b5e4de4e9bcba883d7933dda5cb6bb8888ea402cbd0f2cddf572b2baee2dd57c94081e4db318a0ded28ae96a80eff1ed421ca7bae6418fae3a1ce9744c02d4aa4dc53efa69b483a2e030919df30a87f95bb18595b4beb15b65eff3c1332c2d54100bd39ccb3ab7eeea648e0ccc473586002063a380dddd940aaa075b998047bd75a5cdb79142c150fa87e9ec2706569a5f7f06bc36c959f144cd22fbf5e690388902eca06d3cc4492d50b72ed5e96f66e6f03087931d3147401720fb512c0c3d5b89fa029fba157fbb1571a4712377b68bac4344dbf75535a1b40197a293eadc563ea035b62591",
+                "iv": "f84e565520f5b75cbb6a13c97fdaea2b",
+                "oaepHashingAlgo": "SHA256",
+                "certFingerprint": "80810fc13a8319fcf0e2ec322c82a4c304b782cc3ce671176343cfe8160c2279",
+                "keyFingerprint": "761b003c1eade3a5490e5000d37887baa5e6ec0e226c07706e599451fc032a79"
+            }
+        }
+
+        payload = to_test.decrypt_payload(encrypted_payload, self._config)
+        
+        self.assertEqual("string", payload['data'])
+
     def test_decrypt_payload_when_decryption_error_occurs(self):
         encrypted_payload = {
             "encryptedData": {
