@@ -37,7 +37,7 @@ def update_node(tree, path, node_str):
         else:
             current_node = tree
 
-        if to_set in current_node and type(current_node[to_set]) is dict:
+        if to_set in current_node and type(current_node[to_set]) is dict and type(json.loads(node_str)) is dict:
             current_node[to_set].update(json.loads(node_str))
         else:
             current_node[to_set] = json.loads(node_str)

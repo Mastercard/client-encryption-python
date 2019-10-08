@@ -69,7 +69,7 @@ class JsonPathUtilsTest(unittest.TestCase):
         # too many new nodes
         self.assertRaises(KeyError, to_test.get_node, sample_json, "node1.node2.newnode.newnode2", True)
 
-    def test_set_node(self):
+    def test_update_node(self):
         sample_json = self.__get_sample_json()
         node = to_test.update_node(sample_json, "$", '{"node3": {"brightness": 6}}')
 
@@ -138,17 +138,44 @@ class JsonPathUtilsTest(unittest.TestCase):
                                 }
                               }, node)
 
-    def test_set_node_empty_path(self):
+    def test_update_node_empty_path(self):
         sample_json = self.__get_sample_json()
         self.assertRaises(ValueError, to_test.update_node, sample_json, None, '{"node3": {"brightness": 6}}')
 
         sample_json = self.__get_sample_json()
         self.assertRaises(ValueError, to_test.update_node, sample_json, "", '{"node3": {"brightness": 6}}')
 
-    def test_set_node_not_json(self):
+    def test_update_node_not_json(self):
         sample_json = self.__get_sample_json()
 
         self.assertRaises(json.JSONDecodeError, to_test.update_node, sample_json, "node1.node2", "not a json string")
+
+    def test_update_node_primitive_type(self):
+        sample_json = self.__get_sample_json()
+
+        node = to_test.update_node(sample_json, "node1.node2", '"I am a primitive data type"')
+
+        self.assertIsInstance(node["node1"]["node2"], str, "Not a string")
+        self.assertDictEqual({"node1": {
+                                "node2": "I am a primitive data type"
+                                }
+                              }, node)
+
+        node = to_test.update_node(sample_json, "node1.node2", '4378462')
+
+        self.assertIsInstance(node["node1"]["node2"], int, "Not an int")
+        self.assertDictEqual({"node1": {
+                                "node2": 4378462
+                                }
+                              }, node)
+
+        node = to_test.update_node(sample_json, "node1.node2", 'true')
+
+        self.assertIsInstance(node["node1"]["node2"], bool, "Not a bool")
+        self.assertDictEqual({"node1": {
+                                "node2": True
+                                }
+                              }, node)
 
     def test_pop_node(self):
         original_json = self.__get_sample_json()
