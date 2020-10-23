@@ -4,7 +4,7 @@
 [![](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_client-encryption-python&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mastercard_client-encryption-python)
 [![](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_client-encryption-python&metric=coverage)](https://sonarcloud.io/dashboard?id=Mastercard_client-encryption-python)
 [![](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_client-encryption-python&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=Mastercard_client-encryption-python)
-[![](https://github.com/Mastercard/oauth1-signer-python/workflows/broken%20links%3F/badge.svg)](https://github.com/Mastercard/oauth1-signer-python/actions?query=workflow%3A%22broken+links%3F%22)
+[![](https://github.com/Mastercard/client-encryption-python/workflows/broken%20links%3F/badge.svg)](https://github.com/Mastercard/client-encryption-python/actions?query=workflow%3A%22broken+links%3F%22)
 [![](https://img.shields.io/pypi/v/mastercard-client-encryption.svg?style=flat&color=blue)](https://pypi.org/project/mastercard-client-encryption)
 [![](https://img.shields.io/badge/license-MIT-yellow.svg)](https://github.com/Mastercard/client-encryption-python/blob/master/LICENSE)
 
@@ -315,14 +315,14 @@ To use it:
 
    ```
 
-##### Integrating with `mastercard-oauth1-signer` module:
+##### Integrating with `mastercard-client-encryption` module:
 
 In order to use both signing and encryption layers, a defined order is required as signing library should calculate the hash of the encrypted payload.
 According to the above the signing layer must be applied first in order to work as inner layer. The outer layer - encryption - will be executed first, providing the signing layer the encrypted payload to sign.
 
 1. Generate the [OpenAPI client](#openapi-generator)
 
-2. Import both **mastercard-oauth1-signer** and **mastercard-client-encryption** modules and the generated OpenAPI client
+2. Import both **mastercard-client-encryption** and **mastercard-client-encryption** modules and the generated OpenAPI client
 
    ```python
    from oauth1.signer_interceptor import add_signing_layer
