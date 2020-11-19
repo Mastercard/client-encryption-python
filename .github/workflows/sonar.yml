@@ -27,8 +27,8 @@ jobs:
         unzip sonar-scanner-cli-$SONAR_SCANNER_VERSION.zip
     - name: Run Tests
       run: |
-        coverage run --source=client_encryption/ -m pytest --junitxml=tests.xml
-        coverage xml -o coverage.xml
+        coverage run setup.py test
+        coverage xml
     - name: Sonar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
