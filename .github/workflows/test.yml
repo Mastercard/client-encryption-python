@@ -4,19 +4,20 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master ]
+    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: "0 16 * * *"
 
 jobs:
   build:
-    env:
-      SONAR_SCANNER_VERSION: 3.3.0.1492
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8]
-
+        python-version: [3.6, 3.7, 3.8, 3.9]
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
