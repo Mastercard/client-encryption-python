@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch, Mock
 import json
-from tests.utils.api_encryption_test_utils import MockApiClient, MockService
+from tests.utils.api_encryption_test_utils import MockApiClient, MockService, MockRestApiClient
 from tests import get_config_for_test, TEST_CONFIG
 import client_encryption.api_encryption as to_test
 
@@ -170,9 +170,9 @@ class ApiEncryptionTest(unittest.TestCase):
             }
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
+        self.assertIn("data", json.loads(response.data))
+        self.assertIn("secret", json.loads(response.data)["data"])
+        self.assertEqual(secret2-secret1, json.loads(response.data)["data"]["secret"])
         self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
 
     def test_add_encryption_layer_delete(self):
@@ -187,17 +187,18 @@ class ApiEncryptionTest(unittest.TestCase):
             }
         }, headers={"Content-Type": "application/json"})
 
-        self.assertEqual("OK", response.data)
+        self.assertEqual("OK", json.loads(response.data))
         self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
 
     def test_add_encryption_layer_get(self):
         test_client = MockApiClient()
         to_test.add_encryption_layer(test_client, self._json_config)
         response = MockService(test_client).do_something_get(headers={"Content-Type": "application/json"})
+        json_res = json.loads(response.data)
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual([53, 84, 75], response.data["data"]["secret"])
+        self.assertIn("data", json_res)
+        self.assertIn("secret", json_res['data'])
+        self.assertEqual([53, 84, 75], json_res["data"]["secret"])
         self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
 
     def test_add_header_encryption_layer_post_no_oaep_algo(self):
@@ -216,9 +217,9 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
+        self.assertIn("data", json.loads(response.data))
+        self.assertIn("secret", json.loads(response.data)["data"])
+        self.assertEqual(secret2-secret1, json.loads(response.data)["data"]["secret"])
         self.assertDictEqual({"Content-Type": "application/json", "x-oaep-digest": "SHA256"}, response.getheaders())
 
     def test_add_header_encryption_layer_post_no_cert_fingerprint(self):
@@ -237,9 +238,9 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
+        self.assertIn("data", json.loads(response.data))
+        self.assertIn("secret", json.loads(response.data)["data"])
+        self.assertEqual(secret2-secret1, json.loads(response.data)["data"]["secret"])
         self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
 
     def test_add_header_encryption_layer_post_no_pubkey_fingerprint(self):
@@ -258,9 +259,9 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
+        self.assertIn("data", json.loads(response.data))
+        self.assertIn("secret", json.loads(response.data)["data"])
+        self.assertEqual(secret2-secret1, json.loads(response.data)["data"]["secret"])
         self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
 
     def test_add_header_encryption_layer_no_iv(self):
@@ -294,9 +295,9 @@ class ApiEncryptionTest(unittest.TestCase):
             "encryptedData": {}
         }, headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual(secret2-secret1, response.data["data"]["secret"])
+        self.assertIn("data", json.loads(response.data))
+        self.assertIn("secret", json.loads(response.data)["data"])
+        self.assertEqual(secret2-secret1, json.loads(response.data)["data"]["secret"])
         self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
 
     def test_add_header_encryption_layer_delete(self):
@@ -324,15 +325,16 @@ class ApiEncryptionTest(unittest.TestCase):
         to_test.add_encryption_layer(test_client, self._json_config)
         response = MockService(test_client).do_something_get_use_headers(headers={"Content-Type": "application/json"})
 
-        self.assertIn("data", response.data)
-        self.assertIn("secret", response.data["data"])
-        self.assertEqual([53, 84, 75], response.data["data"]["secret"])
+        self.assertIn("data", json.loads(response.data))
+        self.assertIn("secret", json.loads(response.data)["data"])
+        self.assertEqual([53, 84, 75], json.loads(response.data)["data"]["secret"])
         self.assertDictEqual({"Content-Type": "application/json"}, response.getheaders())
 
     @patch('client_encryption.api_encryption.__oauth_warn')
     def test_add_encryption_layer_oauth_set(self, __oauth_warn):
         test_client = MockApiClient()
-        to_test.add_encryption_layer(test_client, self._json_config)
+        test_rest_client = MockRestApiClient(test_client)
+        to_test.add_encryption_layer(test_rest_client, self._json_config)
 
         assert not __oauth_warn.called
 

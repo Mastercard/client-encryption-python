@@ -1,4 +1,5 @@
 import json
+import inspect
 from functools import wraps
 from warnings import warn
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
@@ -17,6 +18,20 @@ class ApiEncryption(object):
             with open(encryption_conf_file, encoding='utf-8') as json_file:
                 self._encryption_conf = FieldLevelEncryptionConfig(json_file.read())
 
+    def field_encryption_call_api(self, func):
+        """Decorator for API call_api. func is APIClient.call_api"""
+
+        @wraps(func)
+        def call_api_function(*args, **kwargs):
+            check_type = inspect.signature(func.__self__.call_api).parameters.get("_check_type") is None
+            if check_type:
+                kwargs["_preload_content"] = False  # version 4.3.1
+            return func(*args, **kwargs)
+
+        call_api_function.__fle__ = True
+
+        return call_api_function
+
     def field_encryption(self, func):
         """Decorator for API call_api. func is APIClient.call_api"""
 
@@ -24,12 +39,20 @@ class ApiEncryption(object):
         def call_api_function(*args, **kwargs):
             """Wrap call_api and add field encryption layer to it."""
 
+            check_type = inspect.signature(func.__self__.call_api).parameters.get("_check_type") is not None
+
             in_body = kwargs.get("body", None)
-            kwargs["body"] = self._encrypt_payload(args[4], in_body) if in_body else in_body
-            kwargs["_preload_content"] = False
+
+            in_headers = kwargs.get("headers", None)
+
+            kwargs["body"] = self._encrypt_payload(in_headers, in_body) if in_body else in_body
 
             response = func(*args, **kwargs)
-            response._body = self._decrypt_payload(response.getheaders(), response.data)
+
+            if check_type:
+                response.data = self._decrypt_payload(response.getheaders(), response.data)
+            else:
+                response._body = self._decrypt_payload(response.getheaders(), response.data)
 
             return response
 
@@ -98,14 +121,15 @@ def add_encryption_layer(api_client, encryption_conf_file):
     """Decorate APIClient.call_api with field level encryption"""
 
     api_encryption = ApiEncryption(encryption_conf_file)
-    api_client.call_api = api_encryption.field_encryption(api_client.call_api)
+    api_client.request = api_encryption.field_encryption(api_client.request)
+    api_client.call_api = api_encryption.field_encryption_call_api(api_client.call_api)
 
     __check_oauth(api_client)  # warn the user if authentication layer is missing/not set
 
 
 def __check_oauth(api_client):
     try:
-        api_client.request.__wrapped__
+        api_client.rest_client.request.__wrapped__
     except AttributeError:
         __oauth_warn()
 

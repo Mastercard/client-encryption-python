@@ -128,6 +128,15 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         encrypted_payload = to_test.encrypt_payload(payload, self._config)
         self.__assert_payload_encrypted(payload, encrypted_payload, self._config)
 
+    def test_encrypt_payload_with_type_float(self):
+        payload = {
+            "data": 123.34,
+            "encryptedData": {}
+        }
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+        self.__assert_payload_encrypted(payload, encrypted_payload, self._config)
+
     def test_encrypt_payload_with_type_boolean(self):
         payload = {
             "data": False,

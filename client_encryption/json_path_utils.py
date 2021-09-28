@@ -21,7 +21,7 @@ def get_node(tree, path, create=False):
     if __not_root(path):
         current = __get_node(tree, path.split(_SEPARATOR), create)
 
-    return current
+    return current  # is a dict
 
 
 def update_node(tree, path, node_str):
@@ -37,11 +37,15 @@ def update_node(tree, path, node_str):
         else:
             current_node = tree
 
-        if to_set in current_node and type(current_node[to_set]) is dict and type(json.loads(node_str)) is dict:
-            current_node[to_set].update(json.loads(node_str))
-        else:
-            current_node[to_set] = json.loads(node_str)
+        try:
+            node_json = json.loads(node_str)
+        except json.JSONDecodeError:
+            node_json = node_str
 
+        if to_set in current_node and type(current_node[to_set]) is dict and type(node_json) is dict:
+            current_node[to_set].update(node_json)
+        else:
+            current_node[to_set] = node_json
     else:
         tree.clear()
         tree.update(json.loads(node_str))
@@ -62,7 +66,11 @@ def pop_node(tree, path):
         else:
             node = tree
 
-        return json.dumps(node.pop(to_delete))
+        deleted_elem = node.pop(to_delete)
+        if isinstance(deleted_elem, str):
+            return deleted_elem
+        else:
+            return json.dumps(deleted_elem)
 
     else:
         node = json.dumps(tree)
