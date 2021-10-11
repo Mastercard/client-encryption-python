@@ -147,8 +147,9 @@ class JsonPathUtilsTest(unittest.TestCase):
 
     def test_update_node_not_json(self):
         sample_json = self.__get_sample_json()
+        node = to_test.update_node(sample_json, "node1.node2", "not a json string")
 
-        self.assertRaises(json.JSONDecodeError, to_test.update_node, sample_json, "node1.node2", "not a json string")
+        self.assertIsInstance(node["node1"]["node2"], str, "not a json string")
 
     def test_update_node_primitive_type(self):
         sample_json = self.__get_sample_json()
@@ -204,7 +205,7 @@ class JsonPathUtilsTest(unittest.TestCase):
         sample_json = self.__get_sample_json()
         node = to_test.pop_node(sample_json, "node1.node2.colour")
         self.assertIsInstance(node, str, "Not a string")
-        self.assertEqual("red", json.loads(node))
+        self.assertEqual("red", node)
         self.assertDictEqual({"node1": {
                                 "node2": {
                                     "shape": "circle",

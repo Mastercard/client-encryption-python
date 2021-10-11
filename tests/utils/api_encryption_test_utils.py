@@ -25,22 +25,32 @@ class MockService(object):
         self.api_client = api_client
 
     def do_something_get(self, **kwargs):
-        return self.api_client.call_api("testservice", "GET", None, None, kwargs["headers"])
+        return self.api_client.request("GET", "testservice", None, kwargs["headers"])
 
     def do_something_post(self, **kwargs):
-        return self.api_client.call_api("testservice", "POST", None, None, kwargs["headers"], body=kwargs["body"])
+        return self.api_client.request("POST", "testservice", None, kwargs["headers"], post_params=None, body=kwargs["body"])
 
     def do_something_delete(self, **kwargs):
-        return self.api_client.call_api("testservice", "DELETE", None, None, kwargs["headers"], body=kwargs["body"])
+        return self.api_client.request("DELETE", "testservice", None, kwargs["headers"], post_params=None, body=kwargs["body"])
 
     def do_something_get_use_headers(self, **kwargs):
-        return self.api_client.call_api("testservice/headers", "GET", None, None, kwargs["headers"])
+        return self.api_client.request("GET", "testservice/headers", None, kwargs["headers"])
 
     def do_something_post_use_headers(self, **kwargs):
-        return self.api_client.call_api("testservice/headers", "POST", None, None, kwargs["headers"], body=kwargs["body"])
+        return self.api_client.request("POST", "testservice/headers", None, headers=kwargs["headers"], post_params=None, body=kwargs["body"])
 
     def do_something_delete_use_headers(self, **kwargs):
-        return self.api_client.call_api("testservice/headers", "DELETE", None, None, kwargs["headers"], body=kwargs["body"])
+        return self.api_client.request("DELETE", "testservice/headers", None, headers=kwargs["headers"], post_params=None, body=kwargs["body"])
+
+
+class MockRestApiClient(object):
+
+    def __init__(self, request):
+        self.request = request
+        self.rest_client = request
+
+    def call_api(self):
+        pass
 
 
 class MockApiClient(object):
@@ -56,33 +66,25 @@ class MockApiClient(object):
     def request(self, method, url, query_params=None, headers=None,
                 post_params=None, body=None, _preload_content=True,
                 _request_timeout=None):
-        pass
-
-    def call_api(self, resource_path, method,
-                 path_params=None, query_params=None, header_params=None,
-                 body=None, post_params=None, files=None,
-                 response_type=None, auth_settings=None, async_req=None,
-                 _return_http_data_only=None, collection_formats=None,
-                 _preload_content=True, _request_timeout=None):
         check = -1
 
         if body:
-            if resource_path == "testservice/headers":
-                iv = header_params["x-iv"]
-                encrypted_key = header_params["x-key"]
-                oaep_digest_algo = header_params["x-oaep-digest"] if "x-oaep-digest" in header_params else None
+            if url == "testservice/headers":
+                iv = headers["x-iv"]
+                encrypted_key = headers["x-key"]
+                oaep_digest_algo = headers["x-oaep-digest"] if "x-oaep-digest" in headers else None
 
                 params = SessionKeyParams(self._config, encrypted_key, iv, oaep_digest_algo)
             else:
                 params = None
 
             plain = encryption.decrypt_payload(body, self._config, params)
-            check = plain["data"]["secret2"]-plain["data"]["secret1"]
+            check = plain["data"]["secret2"] - plain["data"]["secret1"]
             res = {"data": {"secret": check}}
         else:
             res = {"data": {"secret": [53, 84, 75]}}
 
-        if resource_path == "testservice/headers" and method in ["GET", "POST", "PUT"]:
+        if url == "testservice/headers" and method in ["GET", "POST", "PUT"]:
             params = SessionKeyParams.generate(self._config)
             json_resp = encryption.encrypt_payload(res, self._config, params)
 
@@ -106,3 +108,11 @@ class MockApiClient(object):
             response.data = "OK" if check == 0 else "KO"
 
         return response
+
+    def call_api(self, resource_path, method,
+                 path_params=None, query_params=None, header_params=None,
+                 body=None, post_params=None, files=None,
+                 response_type=None, auth_settings=None, async_req=None,
+                 _return_http_data_only=None, collection_formats=None,
+                 _preload_content=True, _request_timeout=None, _check_type=None):
+        pass
