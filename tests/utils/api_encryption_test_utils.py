@@ -1,7 +1,7 @@
 from unittest.mock import Mock
 from functools import wraps
 import json
-from tests import get_config_for_test
+from tests import get_fle_config_for_test
 import client_encryption.field_level_encryption as encryption
 import client_encryption.field_level_encryption_config as encryption_config
 from client_encryption.session_key_params import SessionKeyParams
@@ -57,7 +57,7 @@ class MockApiClient(object):
 
     def __init__(self, configuration=None, header_name=None, header_value=None,
                  cookie=None):
-        json_config = json.loads(get_config_for_test())
+        json_config = json.loads(get_fle_config_for_test())
         json_config["paths"]["$"]["toEncrypt"] = {"data": "encryptedData"}
         json_config["paths"]["$"]["toDecrypt"] = {"encryptedData": "data"}
         self._config = encryption_config.FieldLevelEncryptionConfig(json_config)

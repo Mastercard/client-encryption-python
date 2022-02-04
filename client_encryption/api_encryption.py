@@ -4,7 +4,9 @@ from functools import wraps
 from warnings import warn
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
 from client_encryption.session_key_params import SessionKeyParams
-from client_encryption.field_level_encryption import encrypt_payload, decrypt_payload
+from client_encryption.field_level_encryption import encrypt_payload as encrypt_field_level, \
+    decrypt_payload as decrypt_field_level
+from client_encryption.jwe_encryption import encrypt_payload as encrypt_jwe, decrypt_payload as decrypt_jwe
 
 
 class ApiEncryption(object):
@@ -64,32 +66,32 @@ class ApiEncryption(object):
 
         conf = self._encryption_conf
 
-        if conf.use_http_headers:
-            params = SessionKeyParams.generate(conf)
-
-            encryption_params = {
-                conf.iv_field_name: params.iv_value,
-                conf.encrypted_key_field_name: params.encrypted_key_value
-            }
-            if conf.encryption_certificate_fingerprint_field_name:
-                encryption_params[conf.encryption_certificate_fingerprint_field_name] = \
-                    conf.encryption_certificate_fingerprint
-            if conf.encryption_key_fingerprint_field_name:
-                encryption_params[conf.encryption_key_fingerprint_field_name] = conf.encryption_key_fingerprint
-            if conf.oaep_padding_digest_algorithm_field_name:
-                encryption_params[conf.oaep_padding_digest_algorithm_field_name] = conf.oaep_padding_digest_algorithm
-
-            encrypted_payload = encrypt_payload(body, conf, params)
-            headers.update(encryption_params)
+        if type(conf) is FieldLevelEncryptionConfig:
+            return self.encrypt_field_level_payload(headers, conf, body)
         else:
-            encrypted_payload = encrypt_payload(body, conf)
-
-        return encrypted_payload
+            return self.encrypt_jwe_payload(conf, body)
 
     def _decrypt_payload(self, headers, body):
         """Encryption enforcement based on configuration - decrypt using session key params from header or body"""
 
         conf = self._encryption_conf
+
+        if type(conf) is FieldLevelEncryptionConfig:
+            return self.decrypt_field_level_payload(headers, conf, body)
+        else:
+            return self.decrypt_jwe_payload(conf, body)
+
+    @staticmethod
+    def encrypt_jwe_payload(conf, body):
+        return encrypt_jwe(body, conf)
+
+    @staticmethod
+    def decrypt_jwe_payload(conf, body):
+        return decrypt_jwe(body, conf)
+
+    @staticmethod
+    def decrypt_field_level_payload(headers, conf, body):
+        """Encryption enforcement based on configuration - decrypt using session key params from header or body"""
         params = None
 
         if conf.use_http_headers:
@@ -108,11 +110,34 @@ class ApiEncryption(object):
                 # skip decryption and return original body if not iv nor key is in headers
                 return body
 
-        decrypted_body = decrypt_payload(body, conf, params)
+        decrypted_body = decrypt_field_level(body, conf, params)
         payload = json.dumps(decrypted_body).encode('utf-8')
 
         return payload
 
+    @staticmethod
+    def encrypt_field_level_payload(headers, conf, body):
+        if conf.use_http_headers:
+            params = SessionKeyParams.generate(conf)
+
+            encryption_params = {
+                conf.iv_field_name: params.iv_value,
+                conf.encrypted_key_field_name: params.encrypted_key_value
+            }
+            if conf.encryption_certificate_fingerprint_field_name:
+                encryption_params[conf.encryption_certificate_fingerprint_field_name] = \
+                    conf.encryption_certificate_fingerprint
+            if conf.encryption_key_fingerprint_field_name:
+                encryption_params[conf.encryption_key_fingerprint_field_name] = conf.encryption_key_fingerprint
+            if conf.oaep_padding_digest_algorithm_field_name:
+                encryption_params[conf.oaep_padding_digest_algorithm_field_name] = conf.oaep_padding_digest_algorithm
+
+            encrypted_payload = encrypt_field_level(body, conf, params)
+            headers.update(encryption_params)
+        else:
+            encrypted_payload = encrypt_field_level(body, conf)
+
+        return encrypted_payload
 
 def _contains_param(param_name, headers): return param_name and param_name in headers
 

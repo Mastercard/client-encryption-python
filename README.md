@@ -16,7 +16,9 @@
 - [Usage](#usage)
   * [Prerequisites](#prerequisites)
   * [Adding the Library to Your Project](#adding-the-library-to-your-project)
-  * [Performing Field Level Encryption and Decryption](#performing-field-level-encryption-and-decryption)
+  * [Performing Payload Encryption and Decryption](#performing-payload-encryption-and-decryption)
+      * [JWE Encryption and Decryption](#jwe-encryption-and-decryption)
+      * [Mastercard Encryption and Decryption](#mastercard-encryption-and-decryption)
   * [Integrating with OpenAPI Generator API Client Libraries](#integrating-with-openapi-generator-api-client-libraries)
 
 
@@ -27,28 +29,22 @@ This is the Python version of the Mastercard compliant payload encryption/decryp
 Python 3.6+
 
 ### References <a name="references"></a>
-
-<img src="https://user-images.githubusercontent.com/3964455/55345820-c520a280-54a8-11e9-8235-407199fa1d97.png" alt="Encryption of sensitive data" width="75%" height="75%"/>
+* [JSON Web Encryption (JWE)](https://datatracker.ietf.org/doc/html/rfc7516)
+* [Securing Sensitive Data Using Payload Encryption](https://developer.mastercard.com/platform/documentation/security-and-authentication/securing-sensitive-data-using-payload-encryption/)
 
 ## Usage <a name="usage"></a>
-
 ### Prerequisites <a name="prerequisites"></a>
-
 Before using this library, you will need to set up a project in the [Mastercard Developers Portal](https://developer.mastercard.com). 
 
 As part of this set up, you'll receive:
-
 - A public request encryption certificate (aka _Client Encryption Keys_)
 - A private response decryption key (aka _Mastercard Encryption Keys_)
 
 ### Installation <a name="adding-the-libraries-to-your-project"></a>
-
 If you want to use **mastercard-client-encryption** with [Python](https://www.python.org/), it is available through `PyPI`:
-
 - [https://pypi.org/project/mastercard-client-encryption](https://pypi.org/project/mastercard-client-encryption)
 
 **Adding the library to your project**
-
 Install the library by pip:
 
 ```bash
@@ -70,16 +66,169 @@ $ python3 setup.py install
 You can then use it as a regular module:
 
 ```python
+# Mastercard Encryption/Decryption
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
 from client_encryption.field_level_encryption import encrypt_payload, decrypt_payload
 ```
 
-### Performing Field Level Encryption and Decryption <a name="performing-field-level-encryption-and-decryption"></a>
+```python
+# JWE Encryption/Decryption
+from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
+from client_encryption.field_level_encryption import encrypt_payload, decrypt_payload
+```
 
-- [Introduction](#introduction)
-- [Configuring the Field Level Encryption](#configuring-the-field-level-encryption)
-- [Performing Encryption](#performing-encryption)
-- [Performing Decryption](#performing-decryption)
+### Performing Payload Encryption and Decryption <a name="performing-payload-encryption-and-decryption"></a>
+
++ [Introduction](#introduction)
++ [JWE Encryption and Decryption](#jwe-encryption-and-decryption)
++ [Mastercard Encryption and Decryption](#mastercard-encryption-and-decryption)
+
+#### Introduction <a name="introduction"></a>
+
+This library supports two types of encryption/decryption, both of which support field level and entire payload encryption: JWE encryption and what the library refers to as Field Level Encryption (Mastercard encryption), a scheme used by many services hosted on Mastercard Developers before the library added support for JWE.
+
+#### JWE Encryption and Decryption <a name="jwe-encryption-and-decryption"></a>
+
++ [Introduction](#jwe-introduction)
++ [Configuring the JWE Encryption](#configuring-the-jwe-encryption)
++ [Performing JWE Encryption](#performing-jwe-encryption)
++ [Performing JWE Decryption](#performing-jwe-decryption)
+
+#### Introduction <a name="jwe-introduction"></a>
+
+This library uses [JWE compact serialization](https://datatracker.ietf.org/doc/html/rfc7516#section-7.1) for the encryption of sensitive data.
+The core methods responsible for payload encryption and decryption are `encrypt_payload` and `decrypt_payload` in the `jwe_encryption` module.
+
+- `encrypt_payload()` usage:
+
+```python
+config = JweEncryptionConfig(config_dictionary)
+encrypted_request_payload = encrypt_payload(body, config)
+```
+
+- `decrypt_payload()` usage:
+
+```python
+config = JweEncryptionConfig(config_dictionary)
+decrypted_response_payload = decrypt_payload(body, config)
+```
+
+#### Configuring the JWE Encryption <a name="configuring-the-jwe-encryption"></a>
+
+`jwe_encryption` needs a config dictionary to instruct how to decrypt/decrypt the payloads. Example:
+
+```json
+{
+  "paths": {
+    "$": {
+      "toEncrypt": {
+          "path.to.foo": "path.to.encryptedFoo"
+      },
+      "toDecrypt": {
+          "path.to.encryptedFoo": "path.to.foo"
+      }
+    }
+  },
+  "encryptedValueFieldName": "encryptedData",
+  "encryptionCertificate": "./path/to/public.cert",
+  "decryptionKey": "./path/to/your/private.key",
+}
+```
+
+The above can be either stored to a file or passed to 'JweEncryptionConfig' as dictionary:
+```python
+config_dictionary = {
+                        "paths": {…},
+                        …
+                        "decryptionKey": "./path/to/your/private.key"
+                    }
+                    
+config = JweEncryptionConfig(config_dictionary)
+
+config_file_path = "./config.json"
+config = JweEncryptionConfig(config_file_path)
+```
+
+#### Performing JWE Encryption <a name="performing-jwe-encryption"></a>
+
+Call `jwe_encryption.encrypt_payload()` with a JSON (dict) request payload, and optional `params` object.
+
+Example using the configuration [above](#configuring-the-jwe-encryption):
+
+```python
+from client_encryption.session_key_params import SessionKeyParams
+
+payload = {
+  "path": {
+    "to": {
+      "foo": {
+        "sensitiveField1": "sensitiveValue1",
+        "sensitiveField2": "sensitiveValue2"
+      }
+    }
+  }
+}
+
+params = SessionKeyParams.generate(conf) # optional
+request_payload = encrypt_payload(payload, config, params)
+```
+
+Output:
+
+```json
+{
+  "path": {
+    "to": {
+      "encryptedFoo": {
+        "encryptedValue": "eyJraWQiOiI3NjFiMDAzYzFlYWRlM(...)==.Y+oPYKZEMTKyYcSIVEgtQw=="
+      }
+    }
+  }
+}
+```
+
+#### Performing JWE Decryption <a name="performing-jwe-decryption"></a>
+
+Call `jwe_encryption.decrypt_payload()` with a JSON (dict) encrypted response payload.
+
+Example using the configuration [above](#configuring-the-jwe-encryption):
+
+```python
+response = {
+  "path": {
+    "to": {
+      "encryptedFoo": {
+        "encryptedValue": "eyJraWQiOiI3NjFiMDAzYzFlYWRlM(...)==.Y+oPYKZEMTKyYcSIVEgtQw=="
+      }
+    }
+  }
+}
+
+response_payload = decrypt_payload(response, config)
+
+```
+
+Output:
+
+```json
+{
+  "path": {
+    "to": {
+      "foo": {
+        "sensitiveField1": "sensitiveValue1",
+        "sensitiveField2": "sensitiveValue2"
+      }
+    }
+  }
+}
+```
+
+#### Mastercard Encryption and Decryption <a name="mastercard-encryption-and-decryption"></a>
+
++ [Introduction](#mastercard-introduction)
++ [Configuring the Mastercard Encryption](#configuring-the-mastercard-encryption)
++ [Performing Mastercard Encryption](#performing-mastercard-encryption)
++ [Performing Mastercard Decryption](#performing-mastercard-decryption)
 
 #### Introduction <a name="introduction"></a>
 
@@ -99,7 +248,7 @@ config = FieldLevelEncryptionConfig(config_dictionary)
 decrypted_response_payload = decrypt_payload(body, config)
 ```
 
-#### Configuring the Field Level Encryption <a name="configuring-the-field-level-encryption"></a>
+#### Configuring the Mastercard Encryption <a name="configuring-the-mastercard-encryption"></a>
 
 `field_level_encryption` needs a config dictionary to instruct how to decrypt/decrypt the payloads. Example:
 
@@ -150,7 +299,7 @@ We have a predefined set of configurations to use with Mastercard services:
 
 
 
-#### Performing Encryption <a name="performing-encryption"></a>
+#### Performing Mastercard Encryption <a name="performing-mastercard-encryption"></a>
 
 Call `field_level_encryption.encrypt_payload()` with a JSON (dict) request payload, and optional `params` object.
 
@@ -192,7 +341,7 @@ Output:
 }
 ```
 
-#### Performing Decryption <a name="performing-decryption"></a>
+#### Performing Mastercard Decryption <a name="performing-mastercard-decryption"></a>
 
 Call `field_level_encryption.decrypt_payload()` with a JSON (dict) encrypted response payload.
 
@@ -247,10 +396,9 @@ config = {
       …
     }
   },
-  "ivFieldName": "iv",
-  "encryptedKeyFieldName": "encryptedKey",
+  "encryptionCertificate": "path/to/cert.pem",
   …
-  "oaepPaddingDigestAlgorithm": "SHA256"
+  "decryptionKey": "path/to/to/key.pem"
 }
 
 add_encryption_layer(api_client, config)
@@ -263,7 +411,7 @@ from client_encryption.api_encryption import add_encryption_layer
 add_encryption_layer(api_client, "path/to/my/config.json")
 ```
 
-This method will add the field level encryption in the generated OpenApi client, taking care of encrypting request and decrypting response payloads, but also of updating HTTP headers when needed, automatically, without manually calling `encrypt_payload()`/`decrypt_payload()` functions for each API request or response.
+This method will add the Mastercard/JWE encryption in the generated OpenApi client, taking care of encrypting request and decrypting response payloads, but also of updating HTTP headers when needed, automatically, without manually calling `encrypt_payload()`/`decrypt_payload()` functions for each API request or response.
 
 ##### OpenAPI Generator <a name="openapi-generator"></a>
 
@@ -273,7 +421,7 @@ OpenAPI client can be generated, starting from your OpenAPI Spec using the follo
 openapi-generator-cli generate -i openapi-spec.yaml -l python -o out
 ```
 
-Client library will be generated in the `out` folder.
+The client library will be generated in the `out` folder.
 
 See also: 
 
@@ -292,16 +440,16 @@ To use it:
    from openapi_client.api_client import ApiClient # import generated OpenAPI client
    ```
 
-3. Add the field level encryption layer to the generated client:
+3. Add the encryption layer to the generated client:
 
    ```python
    # Create a new instance of the generated client
    api_client = ApiClient()
-   # Enable field level encryption
+   # Enable encryption
    add_encryption_layer(api_client, "path/to/my/config.json")
    ```
 
-4. Use the `ApiClient` instance with the Field Level Encryption enabled:
+4. Use the `ApiClient` instance with Encryption enabled:
 
    Example:
 
@@ -340,14 +488,13 @@ According to the above the signing layer must be applied first in order to work 
    add_signing_layer(api_client, key_file, key_password, consumer_key)
    ```
      
-4. Then add the field level encryption layer:
+4. Then add the encryption layer:
    ```python
    add_encryption_layer(api_client, "path/to/my/config.json")
    ```
 
-5. Use the `ApiClient` instance with Authentication and Field Level Encryption both enabled:
+5. Use the `ApiClient` instance with Authentication and Encryption both enabled:
    ```python
    response = MyServiceApi(api_client).do_some_action_post(body=request_body)
    decrypted = response.json()
-
    ```
