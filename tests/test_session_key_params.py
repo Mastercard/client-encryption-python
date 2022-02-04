@@ -1,5 +1,5 @@
 import unittest
-from tests import get_fle_config_for_test
+from tests import get_mastercard_config_for_test
 from binascii import Error
 import client_encryption.session_key_params as to_test
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
@@ -14,7 +14,7 @@ class SessionKeyParamsTest(unittest.TestCase):
     _wrapped_key = "VAJccUUNnqGU1aerzKahl/qLMd0BGWo7QC0sn5v9c5TL+9vMt5q/7h6Ae83mlovgjCmaDxBCkVwrLdB/fUMxhjYAEMTMT8Y8Z/RsVQq7osiLotO+UBycIDFJaKanRxCDnrDOrbBPMY+v/STFl99SR1dJOQx9udSkI+QOw2g7UayvM83Huw3ESH8GIKSo9PR0rPAS/vLRaDjeaJlDCFe/hwGWqdEa85JCJ6B0itkGjWag6bNdspYbmMruEPZ4J5/+LLCA5dNLiVObyBlGRAJDXbC3/nR1Tzg/5wzpRxFSGo1qcBPEIB9nSgJNIf2WDGEJTcINTEs181jKUQKvu2Kqeg=="
 
     def setUp(self):
-        self._config = FieldLevelEncryptionConfig(get_fle_config_for_test())
+        self._config = FieldLevelEncryptionConfig(get_mastercard_config_for_test())
 
     def test_generate(self):
         key_params = to_test.SessionKeyParams.generate(self._config)

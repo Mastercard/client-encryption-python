@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import Mock, patch
 import json
 import base64
-from tests import get_fle_config_for_test
+from tests import get_mastercard_config_for_test
 from client_encryption.encoding_utils import Encoding
 from client_encryption.encryption_exception import EncryptionError
 import client_encryption.field_level_encryption as to_test
@@ -13,7 +13,7 @@ from client_encryption.session_key_params import SessionKeyParams
 class FieldLevelEncryptionTest(unittest.TestCase):
 
     def setUp(self):
-        self._config = FieldLevelEncryptionConfig(get_fle_config_for_test())
+        self._config = FieldLevelEncryptionConfig(get_mastercard_config_for_test())
         self._config._paths["$"]._to_encrypt = {"data": "encryptedData"}
         self._config._paths["$"]._to_decrypt = {"encryptedData": "data"}
 

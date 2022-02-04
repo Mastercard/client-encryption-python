@@ -1,13 +1,13 @@
 import unittest
 import client_encryption.jwe_encryption as to_test
 from client_encryption.jwe_encryption_config import JweEncryptionConfig
-from tests import get_fle_config_for_test
+from tests import get_mastercard_config_for_test
 
 
 class JweEncryptionTest(unittest.TestCase):
 
     def setUp(self):
-        self._config = JweEncryptionConfig(get_fle_config_for_test())
+        self._config = JweEncryptionConfig(get_mastercard_config_for_test())
         self._config._paths["$"]._to_encrypt = {"$": "$"}
         self._config._paths["$"]._to_decrypt = {"encryptedValue": "$"}
 

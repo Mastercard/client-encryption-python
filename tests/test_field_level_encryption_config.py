@@ -1,5 +1,5 @@
 import unittest
-from tests import resource_path, get_fle_config_for_test
+from tests import resource_path, get_mastercard_config_for_test
 import json
 import client_encryption.field_level_encryption_config as to_test
 from client_encryption.encryption_utils import load_encryption_certificate
@@ -12,7 +12,7 @@ from Crypto.PublicKey import RSA
 class FieldLevelEncryptionConfigTest(unittest.TestCase):
 
     def setUp(self):
-        self._test_config_file = get_fle_config_for_test()
+        self._test_config_file = get_mastercard_config_for_test()
 
         x509_cert = load_encryption_certificate(resource_path("certificates/test_certificate-2048.der"))
         self._expected_cert = dump_certificate(FILETYPE_ASN1, x509_cert)

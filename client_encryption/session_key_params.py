@@ -12,7 +12,7 @@ class SessionKeyParams(object):
     """Class implementing private session key and its params. Provide key and iv random generation functionality"""
 
     _JWE_KEY_SIZE = 256//8
-    _FLE_KEY_SIZE = 128//8
+    _MASTERCARD_KEY_SIZE = 128 // 8
     _BLOCK_SIZE = AES.block_size
 
     def __init__(self, config, encrypted_key, iv_value, padding_digest_algorithm=None):
@@ -62,7 +62,7 @@ class SessionKeyParams(object):
         """Generate encryption parameters."""
         # Generate an AES secret key
         if type(config) is FieldLevelEncryptionConfig:
-            secret_key = get_random_bytes(SessionKeyParams._FLE_KEY_SIZE)
+            secret_key = get_random_bytes(SessionKeyParams._MASTERCARD_KEY_SIZE)
         else:
             secret_key = get_random_bytes(SessionKeyParams._JWE_KEY_SIZE)
 

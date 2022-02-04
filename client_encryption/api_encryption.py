@@ -1,8 +1,10 @@
 import json
 import inspect
+from enum import Enum
 from functools import wraps
 from warnings import warn
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
+from client_encryption.jwe_encryption_config import JweEncryptionConfig
 from client_encryption.session_key_params import SessionKeyParams
 from client_encryption.field_level_encryption import encrypt_payload as encrypt_field_level, \
     decrypt_payload as decrypt_field_level
@@ -11,14 +13,21 @@ from client_encryption.jwe_encryption import encrypt_payload as encrypt_jwe, dec
 
 class ApiEncryption(object):
 
-    def __init__(self, encryption_conf_file):
+    def __init__(self, encryption_conf_file, encryption_type='Mastercard'):
         """Load and initialize FieldLevelEncryptionConfig object."""
 
         if type(encryption_conf_file) is dict:
-            self._encryption_conf = FieldLevelEncryptionConfig(encryption_conf_file)
+            if encryption_type == EncryptionType.MASTERCARD.value:
+                self._encryption_conf = FieldLevelEncryptionConfig(encryption_conf_file)
+            else:
+                self._encryption_conf = JweEncryptionConfig(encryption_conf_file)
         else:
-            with open(encryption_conf_file, encoding='utf-8') as json_file:
-                self._encryption_conf = FieldLevelEncryptionConfig(json_file.read())
+            if encryption_type == EncryptionType.MASTERCARD.value:
+                with open(encryption_conf_file, encoding='utf-8') as json_file:
+                    self._encryption_conf = FieldLevelEncryptionConfig(json_file.read())
+            else:
+                with open(encryption_conf_file, encoding='utf-8') as json_file:
+                    self._encryption_conf = JweEncryptionConfig(json_file.read())
 
     def field_encryption_call_api(self, func):
         """Decorator for API call_api. func is APIClient.call_api"""
@@ -142,10 +151,9 @@ class ApiEncryption(object):
 def _contains_param(param_name, headers): return param_name and param_name in headers
 
 
-def add_encryption_layer(api_client, encryption_conf_file):
-    """Decorate APIClient.call_api with field level encryption"""
-
-    api_encryption = ApiEncryption(encryption_conf_file)
+def add_encryption_layer(api_client, encryption_conf_file, encryption_type='Mastercard'):
+    """Decorate APIClient.call_api with encryption"""
+    api_encryption = ApiEncryption(encryption_conf_file, encryption_type)
     api_client.request = api_encryption.field_encryption(api_client.request)
     api_client.call_api = api_encryption.field_encryption_call_api(api_client.call_api)
 
@@ -163,3 +171,8 @@ def __oauth_warn():
     warn("No signing layer detected. Request will be only encrypted without being signed. "
          "Please refer to "
          "https://github.com/Mastercard/client-encryption-python#integrating-with-mastercard-oauth1-signer-module")
+
+
+class EncryptionType(Enum):
+    MASTERCARD = 'Mastercard'
+    JWE = 'JWE'
