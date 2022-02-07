@@ -24,11 +24,6 @@ def url_encode_bytes(_bytes):
     return encoded
 
 
-def url_decode_bytes(_bytes):
-    decoded = base64.urlsafe_b64decode(_bytes)
-    return decoded
-
-
 def decode_jwe(value):
     return base64.urlsafe_b64decode(value + "==")
 
