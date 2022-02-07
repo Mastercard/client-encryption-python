@@ -104,8 +104,6 @@ class SessionKeyParams(object):
 
             if type(config) is FieldLevelEncryptionConfig:
                 encrypted_key = decode_value(encrypted_key, config.data_encoding)
-            else:
-                encrypted_key = encrypted_key
 
             _cipher = PKCS1_OAEP.new(key=config.decryption_key,
                                      hashAlgo=hash_algo)
