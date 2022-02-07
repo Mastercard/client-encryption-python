@@ -96,7 +96,10 @@ class ApiEncryption(object):
 
     @staticmethod
     def decrypt_jwe_payload(conf, body):
-        return decrypt_jwe(body, conf)
+        decrypted_body = decrypt_jwe(body, conf)
+        payload = json.dumps(decrypted_body).encode('utf-8')
+
+        return payload
 
     @staticmethod
     def decrypt_field_level_payload(headers, conf, body):
