@@ -73,19 +73,16 @@ from client_encryption.field_level_encryption import encrypt_payload, decrypt_pa
 
 ```python
 # JWE Encryption/Decryption
-from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
-from client_encryption.field_level_encryption import encrypt_payload, decrypt_payload
+from client_encryption.jwe_encryption_config import JweEncryptionConfig
+from client_encryption.jwe_encryption import encrypt_payload, decrypt_payload
 ```
 
 ### Performing Payload Encryption and Decryption <a name="performing-payload-encryption-and-decryption"></a>
 
-+ [Introduction](#introduction)
+This library supports two types of encryption/decryption, both of which support field level and entire payload encryption: JWE encryption and what the library refers to as Field Level Encryption (Mastercard encryption), a scheme used by many services hosted on Mastercard Developers before the library added support for JWE.
+
 + [JWE Encryption and Decryption](#jwe-encryption-and-decryption)
 + [Mastercard Encryption and Decryption](#mastercard-encryption-and-decryption)
-
-#### Introduction <a name="introduction"></a>
-
-This library supports two types of encryption/decryption, both of which support field level and entire payload encryption: JWE encryption and what the library refers to as Field Level Encryption (Mastercard encryption), a scheme used by many services hosted on Mastercard Developers before the library added support for JWE.
 
 #### JWE Encryption and Decryption <a name="jwe-encryption-and-decryption"></a>
 
