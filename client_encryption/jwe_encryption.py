@@ -42,7 +42,8 @@ def encrypt_payload(payload, config, _params=None):
                     cipher_text = full_cipher_text[: len(full_cipher_text) - 16]
                     tag = full_cipher_text[-16:]
 
-                    jwe_payload = _jwe_compact_serialize(encoded_header, params.encrypted_key_value, iv, cipher_text, tag)
+                    jwe_payload = _jwe_compact_serialize(encoded_header, params.encrypted_key_value, iv, cipher_text,
+                                                         tag)
 
                     if isinstance(json_payload, list):
                         json_payload = {config.encrypted_value_field_name: jwe_payload}
@@ -85,7 +86,7 @@ def decrypt_payload(payload, config, _params=None):
                 cipher_text = decode_jwe(encrypted_value[3])
 
                 if header['enc'] == 'A128CBC-HS256':
-                    aes = AES.new(key[16:], AES.MODE_CBC, iv)
+                    aes = AES.new(key[16:], AES.MODE_CBC, iv)  # NOSONAR
                 else:
                     aad = json.dumps(header).encode("ascii")
                     aes = AES.new(key, AES.MODE_GCM, iv)
@@ -108,6 +109,7 @@ def decrypt_payload(payload, config, _params=None):
         return payload
     except (IOError, ValueError, TypeError) as e:
         raise EncryptionError("Payload decryption failed!", e)
+
 
 def _jwe_compact_serialize(encoded_header, encrypted_cek, iv, cipher_text, auth_tag):
     encoded_cipher_text = url_encode_bytes(cipher_text)
