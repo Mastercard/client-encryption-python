@@ -91,7 +91,7 @@ This library supports two types of encryption/decryption, both of which support 
 + [Performing JWE Encryption](#performing-jwe-encryption)
 + [Performing JWE Decryption](#performing-jwe-decryption)
 
-#### Introduction <a name="jwe-introduction"></a>
+##### Introduction <a name="jwe-introduction"></a>
 
 This library uses [JWE compact serialization](https://datatracker.ietf.org/doc/html/rfc7516#section-7.1) for the encryption of sensitive data.
 The core methods responsible for payload encryption and decryption are `encrypt_payload` and `decrypt_payload` in the `jwe_encryption` module.
@@ -110,7 +110,7 @@ config = JweEncryptionConfig(config_dictionary)
 decrypted_response_payload = decrypt_payload(body, config)
 ```
 
-#### Configuring the JWE Encryption <a name="configuring-the-jwe-encryption"></a>
+##### Configuring the JWE Encryption <a name="configuring-the-jwe-encryption"></a>
 
 `jwe_encryption` needs a config dictionary to instruct how to decrypt/decrypt the payloads. Example:
 
@@ -146,7 +146,7 @@ config_file_path = "./config.json"
 config = JweEncryptionConfig(config_file_path)
 ```
 
-#### Performing JWE Encryption <a name="performing-jwe-encryption"></a>
+##### Performing JWE Encryption <a name="performing-jwe-encryption"></a>
 
 Call `jwe_encryption.encrypt_payload()` with a JSON (dict) request payload, and optional `params` object.
 
@@ -184,7 +184,7 @@ Output:
 }
 ```
 
-#### Performing JWE Decryption <a name="performing-jwe-decryption"></a>
+##### Performing JWE Decryption <a name="performing-jwe-decryption"></a>
 
 Call `jwe_encryption.decrypt_payload()` with a JSON (dict) encrypted response payload.
 
@@ -227,7 +227,7 @@ Output:
 + [Performing Mastercard Encryption](#performing-mastercard-encryption)
 + [Performing Mastercard Decryption](#performing-mastercard-decryption)
 
-#### Introduction <a name="introduction"></a>
+##### Introduction <a name="introduction"></a>
 
 The core methods responsible for payload encryption and decryption are `encrypt_payload` and `decrypt_payload` in the `field_level_encryption` module.
 
@@ -245,7 +245,7 @@ config = FieldLevelEncryptionConfig(config_dictionary)
 decrypted_response_payload = decrypt_payload(body, config)
 ```
 
-#### Configuring the Mastercard Encryption <a name="configuring-the-mastercard-encryption"></a>
+##### Configuring the Mastercard Encryption <a name="configuring-the-mastercard-encryption"></a>
 
 `field_level_encryption` needs a config dictionary to instruct how to decrypt/decrypt the payloads. Example:
 
@@ -296,7 +296,7 @@ We have a predefined set of configurations to use with Mastercard services:
 
 
 
-#### Performing Mastercard Encryption <a name="performing-mastercard-encryption"></a>
+##### Performing Mastercard Encryption <a name="performing-mastercard-encryption"></a>
 
 Call `field_level_encryption.encrypt_payload()` with a JSON (dict) request payload, and optional `params` object.
 
@@ -338,7 +338,7 @@ Output:
 }
 ```
 
-#### Performing Mastercard Decryption <a name="performing-mastercard-decryption"></a>
+##### Performing Mastercard Decryption <a name="performing-mastercard-decryption"></a>
 
 Call `field_level_encryption.decrypt_payload()` with a JSON (dict) encrypted response payload.
 
