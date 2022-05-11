@@ -2,14 +2,15 @@ import unittest
 from unittest.mock import patch, Mock
 import json
 from tests.utils.api_encryption_test_utils import MockApiClient, MockService, MockRestApiClient
-from tests import get_config_for_test, TEST_CONFIG
+from tests import get_mastercard_config_for_test, MASTERCARD_TEST_CONFIG, get_jwe_config_for_test
 import client_encryption.api_encryption as to_test
 
 
 class ApiEncryptionTest(unittest.TestCase):
 
     def setUp(self):
-        self._json_config = json.loads(get_config_for_test())
+        self._json_config = json.loads(get_mastercard_config_for_test())
+        self._jwe_json_config = json.loads(get_jwe_config_for_test())
         self._json_config["paths"]["$"]["toEncrypt"] = {"data": "encryptedData"}
         self._json_config["paths"]["$"]["toDecrypt"] = {"encryptedData": "data"}
 
@@ -25,7 +26,7 @@ class ApiEncryptionTest(unittest.TestCase):
 
     @patch('client_encryption.api_encryption.FieldLevelEncryptionConfig')
     def test_ApiEncryption_with_config_as_file_name(self, FieldLevelEncryptionConfig):
-        to_test.ApiEncryption(TEST_CONFIG)
+        to_test.ApiEncryption(MASTERCARD_TEST_CONFIG)
 
         assert FieldLevelEncryptionConfig.called
 
@@ -145,7 +146,7 @@ class ApiEncryptionTest(unittest.TestCase):
 
     @patch('client_encryption.api_encryption.FieldLevelEncryptionConfig')
     def test_add_header_encryption_layer_with_config_as_file_name(self, FieldLevelEncryptionConfig):
-        to_test.add_encryption_layer(MockApiClient(), TEST_CONFIG)
+        to_test.add_encryption_layer(MockApiClient(), MASTERCARD_TEST_CONFIG)
 
         assert FieldLevelEncryptionConfig.called
 

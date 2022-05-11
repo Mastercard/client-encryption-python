@@ -2,15 +2,17 @@ from binascii import Error
 from Crypto.Cipher import PKCS1_OAEP, AES
 from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
-from client_encryption.encoding_utils import encode_bytes, decode_value
+from client_encryption.encoding_utils import encode_bytes, decode_value, url_encode_bytes, Encoding
 from client_encryption.encryption_utils import load_hash_algorithm
 from client_encryption.encryption_exception import KeyWrappingError
+from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
 
 
 class SessionKeyParams(object):
     """Class implementing private session key and its params. Provide key and iv random generation functionality"""
 
-    _KEY_SIZE = 128//8
+    _JWE_KEY_SIZE = 256//8
+    _MASTERCARD_KEY_SIZE = 128 // 8
     _BLOCK_SIZE = AES.block_size
 
     def __init__(self, config, encrypted_key, iv_value, padding_digest_algorithm=None):
@@ -58,15 +60,17 @@ class SessionKeyParams(object):
     @staticmethod
     def generate(config):
         """Generate encryption parameters."""
+        # Generate an AES secret key
+        if type(config) is FieldLevelEncryptionConfig:
+            secret_key = get_random_bytes(SessionKeyParams._MASTERCARD_KEY_SIZE)
+        else:
+            secret_key = get_random_bytes(SessionKeyParams._JWE_KEY_SIZE)
 
         encoding = config.data_encoding
 
         # Generate a random IV
         iv = get_random_bytes(SessionKeyParams._BLOCK_SIZE)
         iv_encoded = encode_bytes(iv, encoding)
-
-        # Generate an AES secret key
-        secret_key = get_random_bytes(SessionKeyParams._KEY_SIZE)
 
         # Encrypt the secret key
         secret_key_encrypted = SessionKeyParams.__wrap_secret_key(secret_key, config)
@@ -85,7 +89,10 @@ class SessionKeyParams(object):
                                      hashAlgo=hash_algo)
 
             encrypted_secret_key = _cipher.encrypt(plain_key)
-            return encode_bytes(encrypted_secret_key, config.data_encoding)
+            if type(config) is FieldLevelEncryptionConfig:
+                return encode_bytes(encrypted_secret_key, config.data_encoding)
+            else:
+                return url_encode_bytes(encrypted_secret_key)
 
         except (IOError, TypeError):
             raise KeyWrappingError("Unable to encrypt session secret key.")
@@ -95,7 +102,9 @@ class SessionKeyParams(object):
         try:
             hash_algo = load_hash_algorithm(_hash)
 
-            encrypted_key = decode_value(encrypted_key, config.data_encoding)
+            if type(config) is FieldLevelEncryptionConfig:
+                encrypted_key = decode_value(encrypted_key, config.data_encoding)
+
             _cipher = PKCS1_OAEP.new(key=config.decryption_key,
                                      hashAlgo=hash_algo)
 

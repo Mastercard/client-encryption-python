@@ -19,6 +19,15 @@ def encode_bytes(_bytes, encoding):
         raise ValueError("Encode: Invalid or missing input bytes.")
 
 
+def url_encode_bytes(_bytes):
+    encoded = base64.urlsafe_b64encode(_bytes).decode().replace("=", "")
+    return encoded
+
+
+def decode_jwe(value):
+    return base64.urlsafe_b64decode(value + "==")
+
+
 def decode_value(value, encoding):
     """Decode Hex or Base64 string to byte sequence."""
 
