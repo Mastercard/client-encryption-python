@@ -93,7 +93,7 @@ def decrypt_payload(payload, config, _params=None):
                     aes.update(aad)
 
                 decrypted = aes.decrypt(cipher_text)
-                decoded_payload = decrypted.decode().rstrip('\x03').strip()
+                decoded_payload = ''.join(c for c in decrypted.decode() if c.isprintable())
 
                 if isinstance(json.loads(decoded_payload), list):
                     json_payload = json.loads(decoded_payload)
