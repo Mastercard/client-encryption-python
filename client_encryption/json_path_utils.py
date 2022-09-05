@@ -42,7 +42,12 @@ def update_node(tree, path, node_str):
         except json.JSONDecodeError:
             node_json = node_str
 
-        if to_set in current_node and type(current_node[to_set]) is dict and type(node_json) is dict:
+        if type(current_node) is list:
+            if to_set in current_node[0] and type(current_node[0][to_set]) is dict and type(node_json) is dict:
+                current_node[0][to_set].update(node_json)
+            else:
+                current_node[0][to_set] = node_json
+        elif to_set in current_node and type(current_node[to_set]) is dict and type(node_json) is dict:
             current_node[to_set].update(node_json)
         else:
             current_node[to_set] = node_json
@@ -66,7 +71,10 @@ def pop_node(tree, path):
         else:
             node = tree
 
-        deleted_elem = node.pop(to_delete)
+        if type(node) is list:
+            deleted_elem = node[0].pop(to_delete)
+        else:
+            deleted_elem = node.pop(to_delete)
         if isinstance(deleted_elem, str):
             return deleted_elem
         else:
@@ -91,8 +99,9 @@ def cleanup_node(tree, path, target):
                 node = __get_node(tree, parent, False)
             else:
                 node = tree
-
-            if not node[to_delete]:
+            if type(node) is list and not node[0][to_delete]:
+                del node[0][to_delete]
+            elif not node[to_delete]:
                 del node[to_delete]
 
     else:
@@ -107,12 +116,23 @@ def __get_node(tree, node_list, create):
     last_node = node_list.pop()
 
     for node in node_list:
-        current = current[node]
+        if type(current) is list:
+            current = current[0][node]
+        else:
+            current = current[node]
 
-    if type(current) is not dict:
+    if type(current) is not dict and type(current) is not list:
         raise ValueError("'" + current + "' is not of dict type")
 
-    if last_node not in current and create:
+    if type(current) is list:
+        if not current and create:
+            d = dict()
+            d[last_node] = {}
+            current.append(d)
+        elif last_node not in current[0] and create:
+            current[0][last_node] = {}
+        return current[0][last_node]
+    elif last_node not in current and create:
         current[last_node] = {}
 
     return current[last_node]
