@@ -12,10 +12,7 @@ def encrypt_payload(payload, config, _params=None):
     """Encrypt some fields of a JSON payload using the given configuration."""
 
     try:
-        if type(payload) is dict or type(payload) is list:
-            json_payload = copy.deepcopy(payload)
-        else:
-            json_payload = json.loads(payload)
+        json_payload = copy.deepcopy(payload) if type(payload) is dict or type(payload) is list else json.loads(payload)
 
         for elem, target in config.paths["$"].to_encrypt.items():
             if not _params:
@@ -50,10 +47,7 @@ def decrypt_payload(payload, config, _params=None):
     """Decrypt some fields of a JSON payload using the given configuration."""
 
     try:
-        if type(payload) is dict or type(payload) is list:
-            json_payload = payload
-        else:
-            json_payload = json.loads(payload)
+        json_payload = payload if type(payload) is dict or type(payload) is list else json.loads(payload)
 
         for elem, target in config.paths["$"].to_decrypt.items():
             try:

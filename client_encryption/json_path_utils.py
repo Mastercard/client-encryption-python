@@ -32,10 +32,7 @@ def update_node(tree, path, node_str):
     if __not_root(path):
         parent = path.split(_SEPARATOR)
         to_set = parent.pop()
-        if parent:
-            current_node = __get_node(tree, parent, False)
-        else:
-            current_node = tree
+        current_node = __get_node(tree, parent, False) if parent else tree
 
         try:
             node_json = json.loads(node_str)

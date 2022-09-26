@@ -21,6 +21,23 @@ class JsonPathUtilsTest(unittest.TestCase):
             }
         }
 
+    @staticmethod
+    def __get_array_sample_json():
+        return {
+            "node1": [
+                {
+                    "node2": {
+                    "colour": "red",
+                    "shape": "circle",
+                    "position": {
+                        "lat": 1,
+                        "long": 3
+                        }
+                    }
+                }
+            ]
+        }
+
     def test_get_node(self):
         sample_json = self.__get_sample_json()
 
@@ -150,6 +167,29 @@ class JsonPathUtilsTest(unittest.TestCase):
         node = to_test.update_node(sample_json, "node1.node2", "not a json string")
 
         self.assertIsInstance(node["node1"]["node2"], str, "not a json string")
+
+    def test_update_node_array_with_str(self):
+        sample_json = self.__get_array_sample_json()
+        node = to_test.update_node(sample_json, "node1.node2", "not a json string")
+
+        self.assertIsInstance(node["node1"][0]["node2"], str, "not a json string")
+
+    def test_update_node_array_with_json_str(self):
+        sample_json = self.__get_array_sample_json()
+        node = to_test.update_node(sample_json, "node1.node2", '{"position": {"brightness": 6}}')
+
+        self.assertIsInstance(node["node1"][0]["node2"]["position"], dict)
+        self.assertDictEqual({'node1': [
+                                {'node2': {
+                                    'colour': 'red',
+                                    'shape': 'circle',
+                                    'position': {
+                                        'brightness': 6
+                                    }
+                                }
+                                }
+                            ]}, node)
+
 
     def test_update_node_primitive_type(self):
         sample_json = self.__get_sample_json()
