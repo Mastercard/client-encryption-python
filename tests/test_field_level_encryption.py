@@ -78,6 +78,20 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         del payload["encryptedData"]
         self.assertEqual(payload, to_test.decrypt_payload(encrypted, config))
 
+    def __assert_array_payload_encrypted(self, payload, encrypted, config):
+        self.assertNotIn("data", encrypted[0])
+        self.assertIn("encryptedData", encrypted[0])
+        enc_data = encrypted[0]["encryptedData"]
+        self.assertEqual(6, len(enc_data.keys()))
+        self.assertIsNotNone(enc_data["iv"])
+        self.assertIsNotNone(enc_data["encryptedKey"])
+        self.assertIsNotNone(enc_data["encryptedValue"])
+        self.assertEqual("SHA256", enc_data["oaepHashingAlgo"])
+        self.assertEqual("761b003c1eade3a5490e5000d37887baa5e6ec0e226c07706e599451fc032a79", enc_data["keyFingerprint"])
+        self.assertEqual("80810fc13a8319fcf0e2ec322c82a4c304b782cc3ce671176343cfe8160c2279", enc_data["certFingerprint"])
+        del payload[0]["encryptedData"]
+        self.assertEqual(payload, to_test.decrypt_payload(encrypted, config))
+
     def test_encrypt_payload_base64_field_encoding(self):
         payload = {
             "data": {
@@ -154,6 +168,155 @@ class FieldLevelEncryptionTest(unittest.TestCase):
 
         encrypted_payload = to_test.encrypt_payload(payload, self._config)
         self.__assert_payload_encrypted(payload, encrypted_payload, self._config)
+
+    def test_encrypt_array_payload_with_type_string(self):
+        payload = [{
+            "data": "item1",
+            "encryptedData": {}
+        }]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+        self.__assert_array_payload_encrypted(payload, encrypted_payload, self._config)
+
+    def test_encrypt_array_payload_with_type_list(self):
+        payload = [{
+            "data": ["item1", "item2", "item3"],
+            "encryptedData": {}
+        }]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+        self.__assert_array_payload_encrypted(payload, encrypted_payload, self._config)
+
+    def test_encrypt_array_payload_with_type_object(self):
+
+        payload = [{
+            "data": {
+                "field1": "value1",
+                "field2": "value2"
+            },
+            "encryptedData": {}
+        }]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+        self.__assert_array_payload_encrypted(payload, encrypted_payload, self._config)
+
+    def test_encrypt_array_payload_with_type_multiple_object(self):
+
+        payload = [{
+            "data": {
+                "field1": "value1",
+                "field2": "value2"
+            },
+            "encryptedData": {}
+            },
+            {
+                "data": {
+                    "field1": "value1",
+                    "field2": "value2"
+                },
+                "encryptedData": {}
+            }
+        ]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+        self.__assert_array_payload_encrypted(payload, encrypted_payload, self._config)
+
+    def test_encrypt_array_payload_skip_when_in_path_does_not_exist(self):
+        payload = [{
+            "dataNotToEncrypt": {
+                "field1": "value1",
+                "field2": "value2"
+            },
+            "encryptedData": {}
+        }]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+
+        self.assertEqual(payload, encrypted_payload)
+
+    def test_encrypt_array_payload_create_node_when_out_path_parent_exists(self):
+        self._config._paths["$"]._to_encrypt = {"data": "encryptedDataParent.encryptedData"}
+
+        payload = [{
+            "data": {
+                "field1": "value1",
+                "field2": "value2"
+            },
+            "encryptedDataParent": {}
+        }]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+
+        self.assertNotIn("data", encrypted_payload[0])
+        self.assertIn("encryptedDataParent", encrypted_payload[0])
+        self.assertIn("encryptedData", encrypted_payload[0]["encryptedDataParent"])
+
+    def test_encrypt_array_payload_with_multiple_encryption_paths(self):
+        self._config._paths["$"]._to_encrypt = {"data1": "encryptedData1", "data2": "encryptedData2"}
+
+        payload = [{
+            "data1": {
+                "field1": "value1",
+                "field2": "value2"
+            },
+            "data2": {
+                "field3": "value3",
+                "field4": "value4"
+            },
+            "encryptedData1": {},
+            "encryptedData2": {}
+        }]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+
+        self.assertNotIn("data1", encrypted_payload[0])
+        self.assertNotIn("data2", encrypted_payload[0])
+        enc_data1 = encrypted_payload[0]["encryptedData1"]
+        enc_data2 = encrypted_payload[0]["encryptedData2"]
+        self.assertIsNotNone(enc_data1["iv"])
+        self.assertIsNotNone(enc_data1["encryptedKey"])
+        self.assertIsNotNone(enc_data1["encryptedValue"])
+        self.assertIsNotNone(enc_data2["iv"])
+        self.assertIsNotNone(enc_data2["encryptedKey"])
+        self.assertIsNotNone(enc_data2["encryptedValue"])
+        self.assertNotEqual(enc_data1["iv"], enc_data2["iv"], "using same set of params")
+
+    def test_encrypt_array_payload_when_root_as_in_path(self):
+        self._config._paths["$"]._to_encrypt = {"$": "encryptedData"}
+
+        payload = [{
+            "field1": "value1",
+            "field2": "value2"
+        }]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+
+        self.assertNotIn("field1", encrypted_payload[0])
+        self.assertNotIn("field2", encrypted_payload[0])
+        self.assertIn("encryptedData", encrypted_payload[0])
+        self.assertEqual(6, len(encrypted_payload[0]["encryptedData"].keys()))
+
+    def test_encrypt_array_payload_when_out_path_same_as_in_path(self):
+        self._config._paths["$"]._to_encrypt = {"data": "data"}
+
+        payload = [{
+            "data": {
+                "field1": "value1",
+                "field2": "value2"
+            }
+        }]
+
+        encrypted_payload = to_test.encrypt_payload(payload, self._config)
+
+        self.assertIn("data", encrypted_payload[0])
+        self.assertNotIn("field1", encrypted_payload[0]["data"])
+        self.assertNotIn("field2", encrypted_payload[0]["data"])
+        self.assertIn("iv", encrypted_payload[0]["data"])
+        self.assertIn("encryptedKey", encrypted_payload[0]["data"])
+        self.assertIn("encryptedValue", encrypted_payload[0]["data"])
+        self.assertIn("certFingerprint", encrypted_payload[0]["data"])
+        self.assertIn("keyFingerprint", encrypted_payload[0]["data"])
+        self.assertIn("oaepHashingAlgo", encrypted_payload[0]["data"])
 
     def test_encrypt_payload_skip_when_in_path_does_not_exist(self):
         payload = {
