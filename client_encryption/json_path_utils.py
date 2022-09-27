@@ -40,10 +40,7 @@ def update_node(tree, path, node_str):
             node_json = node_str
 
         if type(current_node) is list:
-            if to_set in current_node[0] and type(current_node[0][to_set]) is dict and type(node_json) is dict:
-                current_node[0][to_set].update(node_json)
-            else:
-                current_node[0][to_set] = node_json
+            update_node_list(to_set, current_node, node_json)
         elif to_set in current_node and type(current_node[to_set]) is dict and type(node_json) is dict:
             current_node[to_set].update(node_json)
         else:
@@ -53,6 +50,13 @@ def update_node(tree, path, node_str):
         tree.update(json.loads(node_str))
 
     return tree
+
+
+def update_node_list(to_set, current_node, node_json):
+    if to_set in current_node[0] and type(current_node[0][to_set]) is dict and type(node_json) is dict:
+        current_node[0][to_set].update(node_json)
+    else:
+        current_node[0][to_set] = node_json
 
 
 def pop_node(tree, path):
