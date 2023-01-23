@@ -84,13 +84,16 @@ def decrypt_payload(payload, config, _params=None):
 
                 header = json.loads(decode_jwe(encrypted_value[0]))
                 cipher_text = decode_jwe(encrypted_value[3])
+                decryption_method = header['enc']
 
-                if header['enc'] == 'A128CBC-HS256':
+                if decryption_method == 'A128CBC-HS256':
                     aes = AES.new(key[16:], AES.MODE_CBC, iv)  # NOSONAR
-                else:
+                elif decryption_method == 'A128GCM' or decryption_method == 'A192GCM' or decryption_method == 'A256GCM':
                     aad = json.dumps(header).encode("ascii")
                     aes = AES.new(key, AES.MODE_GCM, iv)
                     aes.update(aad)
+                else:
+                    raise EncryptionError("Unsupported decryption method:", decryption_method)
 
                 decrypted = aes.decrypt(cipher_text)
                 decoded_payload = ''.join(c for c in decrypted.decode() if c.isprintable())
