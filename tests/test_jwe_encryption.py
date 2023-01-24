@@ -64,18 +64,34 @@ class JweEncryptionTest(unittest.TestCase):
         decrypted_payload = to_test.decrypt_payload(encrypted_payload, self._config)
         self.assertDictEqual(payload, decrypted_payload)
 
-    def test_decrypt_payload_should_decrypt_gcm_payload(self):
+    def test_decrypt_payload_should_decrypt_aes128gcm_payload(self):
         encrypted_payload = {
-            "encryptedValue": "eyJhbGciOiJSU0EtT0FFUC0yNTYiLCJlbmMiOiJBMjU2R0NNIiwia2lkIjoiNzYxYjAwM2MxZWFkZTNhNTQ5MGU1MDAwZDM3ODg3YmFhNWU2ZWMwZTIyNmMwNzcwNmU1OTk0NTFmYzAzMmE3OSIsImN0eSI6ImFwcGxpY2F0aW9uL2pzb24ifQ.BSaTAccaFe1S2KyhuIyiQTvbonrKSDTzyKruStdl1Ym9Qu_lTjhfvqZ0-PzqquY8S4WcN55YhNZHY4gYdA6gZj4Jemgt31YpnwcewehoDi2xFV8mtlA7ILgUpJtEEfVGXRxiHt1S1AfrrbplcHrwrSemnnaPD4xA6uVlpXtImq8_GtrF5u6A-dPKdHr5gEhVUtfNj_MTvOR3UsnpVWv6vKbXDvNQci44pRVnaXKdyORA_Dv2ogBDDf2wtBZDyki5yyjdMAFkzBBeNkEaepJUvK71nNVd4HrZrulEOR1mvebGP1cYbEEtPGp6rZByB68Ktm3afyYS6f2rrLJlLUmNxQ.gnqed-xAvu4IVQUQ_JhxIA.tLw_NKkvBvzO0ZLxtI9_lXYnnBAo0c4SiI7s1cUhUST5d7nc6SVd48a6FE10QLjE2tmulq_cuB44iB5Q6ttynQXl5FjvTBs.lSfPmu-dvcIhHxnkIzPxBQ"
+            "encryptedValue": "eyJlbmMiOiJBMTI4R0NNIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.WtvYljbsjdEv-Ttxx1p6PgyIrOsLpj1FMF9NQNhJUAHlKchAo5QImgEgIdgJE7HC2KfpNcHiQVqKKZq_y201FVzpicDkNzlPJr5kIH4Lq-oC5iP0agWeou9yK5vIxFRP__F_B8HSuojBJ3gDYT_KdYffUIHkm_UysNj4PW2RIRlafJ6RKYanVzk74EoKZRG7MIr3pTU6LIkeQUW41qYG8hz6DbGBOh79Nkmq7Oceg0ZwCn1_MruerP-b15SGFkuvOshStT5JJp7OOq82gNAOkMl4fylEj2-vADjP7VSK8GlqrA7u9Tn-a4Q28oy0GOKr1Z-HJgn_CElknwkUTYsWbg.PKl6_kvZ4_4MjmjW.AH6pGFkn7J49hBQcwg.zdyD73TcuveImOy4CRnVpw"
         }
 
-        decrypted_payload = {
-            "data": {
-                "field1": "value1",
-                "field2": "value2"
-            },
-            "encryptedData": {}
+        decrypted_payload = {"foo": "bar"}
+
+        payload = to_test.decrypt_payload(encrypted_payload, self._config)
+        self.assertNotIn("encryptedValue", payload)
+        self.assertDictEqual(decrypted_payload, payload)
+
+    def test_decrypt_payload_should_decrypt_aes192gcm_payload(self):
+        encrypted_payload = {
+            "encryptedValue": "eyJlbmMiOiJBMTkyR0NNIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.FWC8PVaZoR2TRKwKO4syhSJReezVIvtkxU_yKh4qODNvlVr8t8ttvySJ-AjM8xdI6vNyIg9jBMWASG4cE49jT9FYuQ72fP4R-Td4vX8wpB8GonQj40yLqZyfRLDrMgPR20RcQDW2ThzLXsgI55B5l5fpwQ9Nhmx8irGifrFWOcJ_k1dUSBdlsHsYxkjRKMENu5x4H6h12gGZ21aZSPtwAj9msMYnKLdiUbdGmGG_P8a6gPzc9ih20McxZk8fHzXKujjukr_1p5OO4o1N4d3qa-YI8Sns2fPtf7xPHnwi1wipmCC6ThFLU80r3173RXcpyZkF8Y3UacOS9y1f8eUfVQ.JRE7kZLN4Im1Rtdb.eW_lJ-U330n0QHqZnQ._r5xYVvMCrvICwLz4chjdw"
         }
+
+        decrypted_payload = {"foo": "bar"}
+
+        payload = to_test.decrypt_payload(encrypted_payload, self._config)
+        self.assertNotIn("encryptedValue", payload)
+        self.assertDictEqual(decrypted_payload, payload)
+
+    def test_decrypt_payload_should_decrypt_aes256gcm_payload(self):
+        encrypted_payload = {
+            "encryptedValue": "eyJraWQiOiI3NjFiMDAzYzFlYWRlM2E1NDkwZTUwMDBkMzc4ODdiYWE1ZTZlYzBlMjI2YzA3NzA2ZTU5OTQ1MWZjMDMyYTc5IiwiY3R5IjoiYXBwbGljYXRpb25cL2pzb24iLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAtMjU2In0.8c6vxeZOUBS8A9SXYUSrRnfl1ht9xxciB7TAEv84etZhQQ2civQKso-htpa2DWFBSUm-UYlxb6XtXNXZxuWu-A0WXjwi1K5ZAACc8KUoYnqPldEtC9Q2bhbQgc_qZF_GxeKrOZfuXc9oi45xfVysF_db4RZ6VkLvY2YpPeDGEMX_nLEjzqKaDz_2m0Ae_nknr0p_Nu0m5UJgMzZGR4Sk1DJWa9x-WJLEyo4w_nRDThOjHJshOHaOU6qR5rdEAZr_dwqnTHrjX9Qm9N9gflPGMaJNVa4mvpsjz6LJzjaW3nJ2yCoirbaeJyCrful6cCiwMWMaDMuiBDPKa2ovVTy0Sw.w0Nkjxl0T9HHNu4R.suRZaYu6Ui05Z3-vsw.akknMr3Dl4L0VVTGPUszcA"
+        }
+
+        decrypted_payload = {"foo": "bar"}
 
         payload = to_test.decrypt_payload(encrypted_payload, self._config)
         self.assertNotIn("encryptedValue", payload)
