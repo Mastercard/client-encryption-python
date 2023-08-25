@@ -39,6 +39,28 @@ class ApiEncryptionTest(unittest.TestCase):
     def test_ApiEncryption_fail_with_config_as_string(self):
         self.assertRaises(FileNotFoundError, to_test.ApiEncryption, "this is not accepted")
 
+    def test_encrypt_payload_returns_same_data_type_as_input(self):
+        api_encryption = to_test.ApiEncryption(self._json_config)
+
+        test_headers = {"Content-Type": "application/json"}
+
+        body = {
+            "data": {
+                "secret1": "test",
+                "secret2": "secret"
+            },
+            "encryptedData": {}
+        }
+
+        encrypted = api_encryption._encrypt_payload(body=body, headers=test_headers)
+        self.assertIsInstance(encrypted, dict)
+
+        encrypted = api_encryption._encrypt_payload(body=json.dumps(body), headers=test_headers)
+        self.assertIsInstance(encrypted, str)
+
+        encrypted = api_encryption._encrypt_payload(body=json.dumps(body).encode("utf-8"), headers=test_headers)
+        self.assertIsInstance(encrypted, bytes)
+
     def test_encrypt_payload_with_params_in_body(self):
         api_encryption = to_test.ApiEncryption(self._json_config)
 

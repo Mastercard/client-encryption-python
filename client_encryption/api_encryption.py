@@ -34,8 +34,10 @@ class ApiEncryption(object):
 
         @wraps(func)
         def call_api_function(*args, **kwargs):
-            check_type = inspect.signature(func.__self__.call_api).parameters.get("_check_type") is None
-            if check_type:
+            original_parameters = inspect.signature(func.__self__.call_api).parameters 
+            check_type_is_none = original_parameters.get("_check_type") is None
+            preload_content_is_not_none = original_parameters.get("_preload_content") is not None
+            if check_type_is_none and preload_content_is_not_none:
                 kwargs["_preload_content"] = False  # version 4.3.1
             return func(*args, **kwargs)
 
@@ -75,10 +77,17 @@ class ApiEncryption(object):
 
         conf = self._encryption_conf
 
-        if type(conf) is FieldLevelEncryptionConfig:
-            return self.encrypt_field_level_payload(headers, conf, body)
-        else:
-            return self.encrypt_jwe_payload(conf, body)
+        encrypted_payload = self.encrypt_field_level_payload(headers, conf, body) if type(
+            conf) is FieldLevelEncryptionConfig else self.encrypt_jwe_payload(conf, body)
+
+        # convert the encrypted_payload to the same data type as the input body
+        if isinstance(body, str):
+            return json.dumps(encrypted_payload)
+
+        if isinstance(body, bytes):
+            return json.dumps(encrypted_payload).encode("utf-8")
+
+        return encrypted_payload
 
     def _decrypt_payload(self, headers, body):
         """Encryption enforcement based on configuration - decrypt using session key params from header or body"""
