@@ -1,6 +1,7 @@
 # client-encryption-python
 [![](https://developer.mastercard.com/_/_/src/global/assets/svg/mcdev-logo-dark.svg)](https://developer.mastercard.com/)
 
+![maintenance-status](https://img.shields.io/badge/maintenance-deprecated-red.svg)
 [![](https://github.com/Mastercard/client-encryption-python/workflows/Build%20&%20Test/badge.svg)](https://github.com/Mastercard/client-encryption-python/actions?query=workflow%3A%22Build+%26+Test%22)
 [![](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_client-encryption-python&metric=alert_status)](https://sonarcloud.io/dashboard?id=Mastercard_client-encryption-python)
 [![](https://sonarcloud.io/api/project_badges/measure?project=Mastercard_client-encryption-python&metric=coverage)](https://sonarcloud.io/dashboard?id=Mastercard_client-encryption-python)
