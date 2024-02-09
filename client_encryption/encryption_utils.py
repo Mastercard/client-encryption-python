@@ -2,7 +2,7 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA1, SHA224, SHA256, SHA384, SHA512
 from OpenSSL.crypto import load_certificate, load_pkcs12, dump_privatekey, FILETYPE_PEM, FILETYPE_ASN1, Error
 from client_encryption.encryption_exception import CertificateError, PrivateKeyError, HashAlgorithmError
-
+from cryptography.hazmat.primitives.serialization import pkcs12
 
 _SUPPORTED_HASH = {"SHA1": SHA1, "SHA224": SHA224, "SHA256": SHA256, "SHA384": SHA384, "SHA512": SHA512}
 
@@ -43,8 +43,10 @@ def load_decryption_key(key_file_path, decryption_key_password=None):
 def __load_pkcs12_private_key(pkcs12_key, password):
     """Load a private key in ASN1 format out of a PKCS#12 container."""
 
-    pkcs12 = load_pkcs12(pkcs12_key, password.encode("utf-8")).get_privatekey()
-    return dump_privatekey(FILETYPE_ASN1, pkcs12)
+    #pkcs12 = load_pkcs12(pkcs12_key, password.encode("utf-8")).get_privatekey()
+    with open(key_file_path, "rb") as f:
+    private_key = pkcs12.load_pkcs12(pkcs12_key, password)
+    return dump_privatekey(FILETYPE_ASN1, private_key)
 
 
 def __get_crypto_file_type(file_content):

@@ -1,5 +1,5 @@
-pycryptodome==3.8.1
-pyOpenSSL>=22.1.0,<=23.2.0
+pycryptodome==3.19.1
+pyOpenSSL>=23.3.0
 setuptools>=39.0.1
 coverage>=4.5.3
 cryptography>=39.0.0
