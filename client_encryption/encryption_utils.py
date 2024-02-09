@@ -1,6 +1,6 @@
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA1, SHA224, SHA256, SHA384, SHA512
-from OpenSSL.crypto import load_certificate, load_pkcs12, dump_privatekey, FILETYPE_PEM, FILETYPE_ASN1, Error
+from OpenSSL.crypto import load_certificate, dump_privatekey, FILETYPE_PEM, FILETYPE_ASN1, Error
 from client_encryption.encryption_exception import CertificateError, PrivateKeyError, HashAlgorithmError
 from cryptography.hazmat.primitives.serialization import pkcs12
 
