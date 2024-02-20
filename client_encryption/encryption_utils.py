@@ -19,19 +19,25 @@ class FileType(IntEnum):
 def load_encryption_certificate(certificate_path):
     """Load X509 encryption certificate data at the given file path."""
 
-    with open(certificate_path, "rb") as cert_content:
-        certificate = cert_content.read()
-        
-    type = __get_crypto_file_type(certificate)
-        
-    if type == FileType.FILETYPE_PEM:
-        cert = x509.load_pem_x509_certificate(certificate)
-        return cert, Encoding.PEM
-    if type == FileType.FILETYPE_ASN1:
-        cert = x509.load_der_x509_certificate(certificate)
-        return cert, Encoding.DER
-    if type == FileType.FILETYPE_INVALID:
-        raise CertificateError("Wrong encryption certificate format.")
+    try: 
+        with open(certificate_path, "rb") as cert_content:
+            certificate = cert_content.read()
+    except IOError:
+        raise CertificateError ("Unable to load certificate.")
+    
+    try:         
+        type = __get_crypto_file_type(certificate)
+            
+        if type == FileType.FILETYPE_PEM:
+            cert = x509.load_pem_x509_certificate(certificate)
+            return cert, Encoding.PEM
+        if type == FileType.FILETYPE_ASN1:
+            cert = x509.load_der_x509_certificate(certificate)
+            return cert, Encoding.DER
+        if type == FileType.FILETYPE_INVALID:
+            raise CertificateError("Wrong certificate format.")
+    except ValueError:
+            raise CertificateError ("Invalid  certificate format.")
 
 def write_encryption_certificate(certificate_path, certificate, cert_type):
     with open(certificate_path, "wb") as f:
