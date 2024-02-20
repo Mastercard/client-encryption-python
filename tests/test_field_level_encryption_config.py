@@ -123,7 +123,7 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
         wrong_json = json.loads(self._test_config_file)
         wrong_json["encryptionCertificate"] = resource_path("certificates/wrong_certificate_name.pem")
 
-        self.assertRaises(FileNotFoundError, to_test.FieldLevelEncryptionConfig, wrong_json)
+        self.assertRaises(CertificateError, to_test.FieldLevelEncryptionConfig, wrong_json)
 
     def test_load_config_missing_decryption_key(self):
         json_conf = json.loads(self._test_config_file)
