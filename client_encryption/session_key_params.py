@@ -2,10 +2,12 @@ from binascii import Error
 from Crypto.Cipher import PKCS1_OAEP, AES
 from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
-from client_encryption.encoding_utils import encode_bytes, decode_value, url_encode_bytes, Encoding
+from client_encryption.encoding_utils import encode_bytes, decode_value, url_encode_bytes
 from client_encryption.encryption_utils import load_hash_algorithm
 from client_encryption.encryption_exception import KeyWrappingError
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
+from cryptography.hazmat.primitives.serialization import PublicFormat
+
 
 
 class SessionKeyParams(object):
@@ -85,7 +87,7 @@ class SessionKeyParams(object):
     def __wrap_secret_key(plain_key, config):
         try:
             hash_algo = load_hash_algorithm(config.oaep_padding_digest_algorithm)
-            _cipher = PKCS1_OAEP.new(key=RSA.import_key(config.encryption_certificate),
+            _cipher = PKCS1_OAEP.new(key=RSA.import_key(config.encryption_certificate.public_key().public_bytes(config.encryption_certificate_type, PublicFormat.SubjectPublicKeyInfo)),
                                      hashAlgo=hash_algo)
 
             encrypted_secret_key = _cipher.encrypt(plain_key)
