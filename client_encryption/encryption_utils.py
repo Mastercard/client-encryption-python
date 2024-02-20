@@ -1,26 +1,41 @@
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA1, SHA224, SHA256, SHA384, SHA512
-from OpenSSL.crypto import load_certificate, FILETYPE_PEM, FILETYPE_ASN1, Error
+#from OpenSSL.crypto import load_certificate, FILETYPE_PEM, FILETYPE_ASN1, Error
 from client_encryption.encryption_exception import CertificateError, PrivateKeyError, HashAlgorithmError
+from cryptography import x509
 from cryptography.hazmat.primitives.serialization import pkcs12 
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization import Encoding
+from enum import IntEnum
 
 _SUPPORTED_HASH = {"SHA1": SHA1, "SHA224": SHA224, "SHA256": SHA256, "SHA384": SHA384, "SHA512": SHA512}
+
+class FileType(IntEnum):
+    FILETYPE_PEM = 0
+    FILETYPE_ASN1 = 1
+    FILETYPE_INVALID = -1
 
 
 def load_encryption_certificate(certificate_path):
     """Load X509 encryption certificate data at the given file path."""
 
-    try:
-        with open(certificate_path, "rb") as cert_content:
-            certificate = cert_content.read()
-            x509 = load_certificate(__get_crypto_file_type(certificate), certificate)
-
-        return x509
-    except IOError:
-        raise CertificateError("Unable to load certificate.")
-    except (ValueError, Error):
+    with open(certificate_path, "rb") as cert_content:
+        certificate = cert_content.read()
+        
+    type = __get_crypto_file_type(certificate)
+        
+    if type == FileType.FILETYPE_PEM:
+        cert = x509.load_pem_x509_certificate(certificate)
+        return cert, Encoding.PEM
+    if type == FileType.FILETYPE_ASN1:
+        cert = x509.load_der_x509_certificate(certificate)
+        return cert, Encoding.DER
+    if type == FileType.FILETYPE_INVALID:
         raise CertificateError("Wrong encryption certificate format.")
+
+def write_encryption_certificate(certificate_path, certificate, cert_type):
+    with open(certificate_path, "wb") as f:
+        f.write(certificate.public_bytes(cert_type))
 
 
 def load_decryption_key(key_file_path, decryption_key_password=None):
@@ -35,10 +50,10 @@ def load_decryption_key(key_file_path, decryption_key_password=None):
                 private_key = __load_pkcs12_private_key(private_key, decryption_key_password)
 
         return RSA.importKey(private_key)
-    except (Error, IOError):
-        raise PrivateKeyError("Unable to load key file.")
     except ValueError:
         raise PrivateKeyError("Wrong decryption key format.")
+    except (Exception):
+        raise PrivateKeyError("Unable to load key file.")
 
 
 def __load_pkcs12_private_key(pkcs_file, password):
@@ -49,9 +64,9 @@ def __load_pkcs12_private_key(pkcs_file, password):
 
 def __get_crypto_file_type(file_content):
     if file_content.startswith(b"-----BEGIN "):
-        return FILETYPE_PEM
+        return FileType.FILETYPE_PEM
     else:
-        return FILETYPE_ASN1
+        return FileType.FILETYPE_ASN1
 
 
 def validate_hash_algorithm(algo_str):

@@ -2,7 +2,7 @@ import unittest
 from tests import resource_path
 import client_encryption.encryption_utils as to_test
 from client_encryption.encryption_exception import CertificateError, PrivateKeyError, HashAlgorithmError
-from OpenSSL.crypto import X509
+from cryptography import x509
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA224, SHA384, SHA512
 
@@ -18,14 +18,14 @@ class EncryptionUtilsTest(unittest.TestCase):
 
     def test_load_encryption_certificate_pem(self):
         cert_path = resource_path("certificates/test_certificate-2048.pem")
-        cert = to_test.load_encryption_certificate(cert_path)
+        cert, type = to_test.load_encryption_certificate(cert_path)
 
         self.assertIsNotNone(cert)
-        self.assertIsInstance(cert, X509, "Must be X509 certificate")
+        self.assertIsInstance(cert, x509.Certificate, "Must be X509 certificate")
 
     def test_load_encryption_certificate_der(self):
         cert_path = resource_path("certificates/test_certificate-2048.der")
-        cert = to_test.load_encryption_certificate(cert_path)
+        cert, type = to_test.load_encryption_certificate(cert_path)
 
         self.assertIsNotNone(cert)
         self.assertIsInstance(cert, X509, "Must be X509 certificate")
