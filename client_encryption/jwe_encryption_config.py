@@ -1,11 +1,10 @@
 import json
 
 from Crypto.Hash import SHA256
-from OpenSSL.crypto import dump_certificate, FILETYPE_ASN1, dump_publickey
 
 from client_encryption.encoding_utils import Encoding
 from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key
-
+from cryptography.hazmat.primitives.serialization import PublicFormat
 
 class JweEncryptionConfig(object):
     """Class implementing a full configuration for field level encryption."""
@@ -26,15 +25,15 @@ class JweEncryptionConfig(object):
             self._paths[path] = EncryptionPathConfig(opt)
 
         if "encryptionCertificate" in json_config:
-            x509_cert = load_encryption_certificate(json_config["encryptionCertificate"])
-            self._encryption_certificate = dump_certificate(FILETYPE_ASN1, x509_cert)
+            x509_cert, cert_type = load_encryption_certificate(json_config["encryptionCertificate"])
+            self._encryption_certificate = x509_cert
+            self._encryption_certificate_type = cert_type
             self._encryption_key_fingerprint = \
-                json_config.get("encryptionKeyFingerprint",
-                                self.__compute_fingerprint(
-                                    dump_publickey(FILETYPE_ASN1, x509_cert.get_pubkey())))
+                json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(cert_type, PublicFormat.SubjectPublicKeyInfo)))                  
         else:
             self._encryption_certificate = None
             self._encryption_key_fingerprint = None
+            self._encryption_certificate_type = None
 
         if "decryptionKey" in json_config:
             decryption_key_password = json_config.get("decryptionKeyPassword", None)
@@ -63,6 +62,10 @@ class JweEncryptionConfig(object):
     @property
     def encryption_certificate(self):
         return self._encryption_certificate
+    
+    @property
+    def encryption_certificate_type(self):
+        return self._encryption_certificate_type
 
     @property
     def encryption_key_fingerprint(self):

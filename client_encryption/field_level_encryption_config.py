@@ -27,6 +27,7 @@ class FieldLevelEncryptionConfig(object):
         if "encryptionCertificate" in json_config:
             x509_cert, cert_type = load_encryption_certificate(json_config["encryptionCertificate"])
             self._encryption_certificate = x509_cert
+            self._encryption_certificate_type = cert_type
             self._encryption_key_fingerprint = \
                 json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(cert_type, PublicFormat.SubjectPublicKeyInfo)))                  
             self._encryption_certificate_fingerprint = \
@@ -36,6 +37,7 @@ class FieldLevelEncryptionConfig(object):
             self._encryption_certificate = None
             self._encryption_key_fingerprint = None
             self._encryption_certificate_fingerprint = None
+            self._encryption_certificate_type = None
 
         if "decryptionKey" in json_config:
             decryption_key_password = json_config.get("decryptionKeyPassword", None)
@@ -68,6 +70,9 @@ class FieldLevelEncryptionConfig(object):
     def encryption_certificate(self):
         return self._encryption_certificate
 
+    @property
+    def encryption_certificate_type(self):
+        return self._encryption_certificate_type
     @property
     def encryption_key_fingerprint(self):
         return self._encryption_key_fingerprint
