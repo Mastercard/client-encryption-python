@@ -1,10 +1,9 @@
 import json
 from Crypto.Hash import SHA256
 from client_encryption import encoding_utils
-from cryptography.hazmat.primitives import hashes
 from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key, validate_hash_algorithm
 from cryptography.hazmat.primitives.serialization import PublicFormat
-from cryptography.hazmat.primitives.asymmetric import rsa
+
 
 class FieldLevelEncryptionConfig(object):
     """Class implementing a full configuration for field level encryption."""
