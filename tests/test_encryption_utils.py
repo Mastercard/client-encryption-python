@@ -28,7 +28,7 @@ class EncryptionUtilsTest(unittest.TestCase):
         cert, type = to_test.load_encryption_certificate(cert_path)
 
         self.assertIsNotNone(cert)
-        self.assertIsInstance(cert, X509, "Must be X509 certificate")
+        self.assertIsInstance(cert, x509.Certificate, "Must be X509 certificate")
 
     def test_load_encryption_certificate_invalid(self):
         cert_path = resource_path("keys/test_invalid_key.der")
