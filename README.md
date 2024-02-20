@@ -27,7 +27,7 @@
 This is the Python version of the Mastercard compliant payload encryption/decryption.
 
 ### Compatibility <a name="compatibility"></a>
-Python 3.6+
+Python 3.8+
 
 ### References <a name="references"></a>
 * [JSON Web Encryption (JWE)](https://datatracker.ietf.org/doc/html/rfc7516)
