@@ -50,11 +50,9 @@ def load_decryption_key(key_file_path, decryption_key_password=None):
     try:
         with open(key_file_path, "rb") as key_content:
             private_key = key_content.read()
-
             # if key format is p12 (decryption_key_password is populated) then we have to retrieve the private key
             if decryption_key_password is not None:
                 private_key = __load_pkcs12_private_key(private_key, decryption_key_password)
-
         return RSA.importKey(private_key)
     except ValueError:
         raise PrivateKeyError("Wrong decryption key format.")
@@ -63,7 +61,6 @@ def load_decryption_key(key_file_path, decryption_key_password=None):
 
 
 def __load_pkcs12_private_key(pkcs_file, password):
-    """Load a private key in ASN1 format out of a PKCS#12 container."""
     private_key, certs, addcerts = pkcs12.load_key_and_certificates(pkcs_file, password.encode("utf-8"))
     return private_key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL, serialization.NoEncryption())
 
