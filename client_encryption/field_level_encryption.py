@@ -1,11 +1,12 @@
-import json
 import copy
+import json
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
-from client_encryption.session_key_params import SessionKeyParams
+
 from client_encryption.encoding_utils import encode_bytes, decode_value
-from client_encryption.json_path_utils import get_node, pop_node, update_node, cleanup_node
 from client_encryption.encryption_exception import EncryptionError
+from client_encryption.json_path_utils import get_node, pop_node, update_node, cleanup_node
+from client_encryption.session_key_params import SessionKeyParams
 
 
 def encrypt_payload(payload, config, _params=None):
@@ -119,4 +120,3 @@ def _remove_fingerprint_from_node(node, config):
         del node[config.encryption_certificate_fingerprint_field_name]
     if config.encryption_key_fingerprint_field_name in node:
         del node[config.encryption_key_fingerprint_field_name]
-

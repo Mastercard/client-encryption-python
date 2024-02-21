@@ -1,19 +1,19 @@
-from binascii import Error
 from Crypto.Cipher import PKCS1_OAEP, AES
-from Crypto.Random import get_random_bytes
 from Crypto.PublicKey import RSA
-from client_encryption.encoding_utils import encode_bytes, decode_value, url_encode_bytes
-from client_encryption.encryption_utils import load_hash_algorithm
-from client_encryption.encryption_exception import KeyWrappingError
-from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
+from Crypto.Random import get_random_bytes
+from binascii import Error
 from cryptography.hazmat.primitives.serialization import PublicFormat
 
+from client_encryption.encoding_utils import encode_bytes, decode_value, url_encode_bytes
+from client_encryption.encryption_exception import KeyWrappingError
+from client_encryption.encryption_utils import load_hash_algorithm
+from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
 
 
 class SessionKeyParams(object):
     """Class implementing private session key and its params. Provide key and iv random generation functionality"""
 
-    _JWE_KEY_SIZE = 256//8
+    _JWE_KEY_SIZE = 256 // 8
     _MASTERCARD_KEY_SIZE = 128 // 8
     _BLOCK_SIZE = AES.block_size
 
@@ -87,7 +87,9 @@ class SessionKeyParams(object):
     def __wrap_secret_key(plain_key, config):
         try:
             hash_algo = load_hash_algorithm(config.oaep_padding_digest_algorithm)
-            _cipher = PKCS1_OAEP.new(key=RSA.import_key(config.encryption_certificate.public_key().public_bytes(config.encryption_certificate_type, PublicFormat.SubjectPublicKeyInfo)),
+            _cipher = PKCS1_OAEP.new(key=RSA.import_key(
+                config.encryption_certificate.public_key().public_bytes(config.encryption_certificate_type,
+                                                                        PublicFormat.SubjectPublicKeyInfo)),
                                      hashAlgo=hash_algo)
 
             encrypted_secret_key = _cipher.encrypt(plain_key)

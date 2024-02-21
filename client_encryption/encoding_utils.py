@@ -1,5 +1,6 @@
 import base64
 from enum import Enum
+
 from client_encryption.encryption_exception import EncodingError
 
 
