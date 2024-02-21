@@ -30,9 +30,9 @@ class FieldLevelEncryptionConfig(object):
             #Fixed encoding is required, regardless of initial cerrtificate encoding to ensure correct calcualtion of fingerprint value
             self._encryption_certificate_type = Encoding.DER 
             self._encryption_key_fingerprint = \
-                json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(cert_type, PublicFormat.SubjectPublicKeyInfo)))                  
+                json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(Encoding.DER , PublicFormat.SubjectPublicKeyInfo)))                  
             self._encryption_certificate_fingerprint = \
-                json_config.get("encryptionCertificateFingerprint", self.__compute_fingerprint(x509_cert.public_bytes(cert_type)))
+                json_config.get("encryptionCertificateFingerprint", self.__compute_fingerprint(x509_cert.public_bytes(Encoding.DER)))
                                
         else:
             self._encryption_certificate = None
