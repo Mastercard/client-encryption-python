@@ -16,11 +16,10 @@ setup(name='mastercard-client-encryption',
           'Intended Audience :: Developers',
           'Natural Language :: English',
           'Operating System :: OS Independent',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
+          'Programming Language :: Python :: 3.9',
           'Topic :: Software Development :: Libraries :: Python Modules'
       ],
       tests_require=['coverage'],
-      install_requires=['pycryptodome>=3.8.1', 'pyOpenSSL>=22.1.0,<=23.2.0', 'setuptools>=39.0.1' ]
+      install_requires=['pycryptodome>=3.8.1', 'setuptools>=69.1.0',"cryptography>=42.0.0" ]
       )
