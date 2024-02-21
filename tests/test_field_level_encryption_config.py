@@ -3,7 +3,7 @@ from tests import resource_path, get_mastercard_config_for_test
 import json
 import client_encryption.field_level_encryption_config as to_test
 from client_encryption.encryption_utils import load_encryption_certificate
-from client_encryption.encoding_utils import Encoding
+from client_encryption.encoding_utils import ClientEncoding
 from client_encryption.encryption_exception import HashAlgorithmError, PrivateKeyError, CertificateError
 from Crypto.PublicKey import RSA
 
@@ -100,7 +100,7 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
         json_conf["dataEncoding"] = "hex"
 
         conf = to_test.FieldLevelEncryptionConfig(json_conf)
-        self.__check_configuration(conf, encoding=Encoding.HEX)
+        self.__check_configuration(conf, encoding=ClientEncoding.HEX)
 
     def test_load_config_wrong_data_encoding(self):
         wrong_json = json.loads(self._test_config_file)
@@ -172,7 +172,7 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
         self.assertIsNotNone(conf.encryption_certificate_fingerprint)  # fingerprint is always calculated
         self.assertIsNone(conf.encryption_certificate_fingerprint_field_name)
 
-    def __check_configuration(self, conf, encoding=Encoding.BASE64, oaep_algo="SHA256"):
+    def __check_configuration(self, conf, encoding=ClientEncoding.BASE64, oaep_algo="SHA256"):
         self.assertIsNotNone(conf.paths["$"], "No resource to encrypt/decrypt fields of is set")
         resource = conf.paths["$"]
         self.assertIsInstance(resource, to_test.EncryptionPathConfig, "Must be EncryptionPathConfig")

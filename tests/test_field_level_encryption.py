@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 import json
 import base64
 from tests import get_mastercard_config_for_test
-from client_encryption.encoding_utils import Encoding
+from client_encryption.encoding_utils import ClientEncoding
 from client_encryption.encryption_exception import EncryptionError
 import client_encryption.field_level_encryption as to_test
 from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
@@ -105,7 +105,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self.__assert_payload_encrypted(payload, encrypted_payload, self._config)
 
     def test_encrypt_payload_hex_field_encoding(self):
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         payload = {
                     "data": {
@@ -529,7 +529,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self.assertEqual(6, len(encrypted_payload["encryptedData"].keys()))
 
     def test_decrypt_payload_base64_field_encoding(self):
-        self._config._data_encoding = Encoding.BASE64
+        self._config._data_encoding = ClientEncoding.BASE64
         self._config._encryption_certificate_fingerprint_field_name = "encryptionCertificateFingerprint"
         self._config._encryption_key_fingerprint_field_name = "encryptionKeyFingerprint"
         self._config._oaep_padding_digest_algorithm_field_name = "oaepHashingAlgorithm"
@@ -551,7 +551,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self.assertDictEqual({"data": {}}, payload)
 
     def test_decrypt_payload_hex_field_encoding(self):
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
         self._config._encryption_certificate_fingerprint_field_name = "encryptionCertificateFingerprint"
         self._config._encryption_key_fingerprint_field_name = "encryptionKeyFingerprint"
         self._config._oaep_padding_digest_algorithm_field_name = "oaepHashingAlgorithm"
@@ -707,7 +707,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
 
     def test_decrypt_payload_when_out_path_same_as_in_path(self):
         self._config._paths["$"]._to_decrypt = {"data": "data"}
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "data": {
@@ -729,7 +729,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self.assertNotIn("oaepHashingAlgo", payload["data"])
 
     def test_decrypt_payload_when_out_path_already_contains_data(self):
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "encryptedData": {
@@ -756,7 +756,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self.assertEqual("field3Value", payload["data"]["field3"])
 
     def test_decrypt_payload_when_out_path_already_contains_string_data(self):
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "encryptedData": {
@@ -778,7 +778,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self.assertEqual("field2Value", payload["data"]["field2"])
 
     def test_decrypt_payload_when_in_path_contains_additional_fields(self):
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "encryptedData": {
@@ -799,7 +799,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
 
     def test_decrypt_payload_with_multiple_decryption_paths(self):
         self._config._paths["$"]._to_decrypt = {"encryptedData1": "data1", "encryptedData2": "data2"}
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "encryptedData2": {
@@ -836,7 +836,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
 
     def test_decrypt_payload_when_root_as_in_path(self):
         self._config._paths["$"]._to_decrypt = {"$": "data"}
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "iv": "6fef040c8fe8ad9ec56b74efa194b5f7",
@@ -853,7 +853,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
 
     def test_decrypt_payload_when_root_as_in_and_out_path(self):
         self._config._paths["$"]._to_decrypt = {"$": "$"}
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "iv": "6fef040c8fe8ad9ec56b74efa194b5f7",
@@ -870,7 +870,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
 
     def test_DecryptPayload_ShouldOverwriteInputObject_WhenOutPathSameAsInPath_PrimitiveTypeData(self):
         self._config._paths["$"]._to_decrypt = {"data": "data"}
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "data": {
@@ -927,7 +927,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self.assertIn("encryptionKeyFingerprint", payload["encryptedData"])
 
     def test_decrypt_payload_when_session_key_params_is_provided(self):
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "encryptedData": {
@@ -946,7 +946,7 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self.assertDictEqual({"data": {}}, payload)
 
     def test_decrypt_payload_when_session_key_params_is_None(self):
-        self._config._data_encoding = Encoding.HEX
+        self._config._data_encoding = ClientEncoding.HEX
 
         encrypted_payload = {
             "encryptedData": {
