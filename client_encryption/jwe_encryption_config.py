@@ -2,9 +2,10 @@ import json
 
 from Crypto.Hash import SHA256
 
-from client_encryption.encoding_utils import Encoding
+from client_encryption.encoding_utils import ClientEncoding
 from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key
-from cryptography.hazmat.primitives.serialization import PublicFormat
+from cryptography.hazmat.primitives.serialization import PublicFormat, Encoding
+
 
 class JweEncryptionConfig(object):
     """Class implementing a full configuration for field level encryption."""
@@ -27,9 +28,10 @@ class JweEncryptionConfig(object):
         if "encryptionCertificate" in json_config:
             x509_cert, cert_type = load_encryption_certificate(json_config["encryptionCertificate"])
             self._encryption_certificate = x509_cert
-            self._encryption_certificate_type = cert_type
+            #Fixed encoding is required, regardless of initial cerrtificate encoding to ensure correct calcualtion of fingerprint value
+            self._encryption_certificate_type = Encoding.DER 
             self._encryption_key_fingerprint = \
-                json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(cert_type, PublicFormat.SubjectPublicKeyInfo)))                  
+                json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(Encoding.DER, PublicFormat.SubjectPublicKeyInfo)))                  
         else:
             self._encryption_certificate = None
             self._encryption_key_fingerprint = None
@@ -44,7 +46,7 @@ class JweEncryptionConfig(object):
         self._encrypted_value_field_name = json_config["encryptedValueFieldName"]
 
         # Fixed properties
-        self._data_encoding = Encoding.BASE64
+        self._data_encoding = ClientEncoding.BASE64
         self._oaep_padding_digest_algorithm = "SHA256"
 
     @property

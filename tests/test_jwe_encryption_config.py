@@ -4,7 +4,7 @@ import unittest
 from Crypto.PublicKey import RSA
 
 import client_encryption.jwe_encryption_config as to_test
-from client_encryption.encoding_utils import Encoding
+from client_encryption.encoding_utils import ClientEncoding
 from client_encryption.encryption_exception import HashAlgorithmError, PrivateKeyError, CertificateError
 from client_encryption.encryption_utils import load_encryption_certificate
 from tests import resource_path, get_jwe_config_for_test
@@ -106,7 +106,7 @@ class JweEncryptionConfigTest(unittest.TestCase):
 
         self.assertRaises(PrivateKeyError, to_test.JweEncryptionConfig, wrong_json)
 
-    def __check_configuration(self, conf, encoding=Encoding.BASE64, oaep_algo="SHA256"):
+    def __check_configuration(self, conf, encoding=ClientEncoding.BASE64, oaep_algo="SHA256"):
         self.assertIsNotNone(conf.paths["$"], "No resource to encrypt/decrypt fields of is set")
         resource = conf.paths["$"]
         self.assertIsInstance(resource, to_test.EncryptionPathConfig, "Must be EncryptionPathConfig")

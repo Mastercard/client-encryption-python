@@ -2,7 +2,8 @@ import json
 from Crypto.Hash import SHA256
 from client_encryption import encoding_utils
 from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key, validate_hash_algorithm
-from cryptography.hazmat.primitives.serialization import PublicFormat
+from cryptography.hazmat.primitives.serialization import PublicFormat, Encoding
+
 
 
 class FieldLevelEncryptionConfig(object):
@@ -26,7 +27,8 @@ class FieldLevelEncryptionConfig(object):
         if "encryptionCertificate" in json_config:
             x509_cert, cert_type = load_encryption_certificate(json_config["encryptionCertificate"])
             self._encryption_certificate = x509_cert
-            self._encryption_certificate_type = cert_type
+            #Fixed encoding is required, regardless of initial cerrtificate encoding to ensure correct calcualtion of fingerprint value
+            self._encryption_certificate_type = Encoding.DER 
             self._encryption_key_fingerprint = \
                 json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(cert_type, PublicFormat.SubjectPublicKeyInfo)))                  
             self._encryption_certificate_fingerprint = \
@@ -46,7 +48,7 @@ class FieldLevelEncryptionConfig(object):
 
         self._oaep_padding_digest_algorithm = validate_hash_algorithm(json_config["oaepPaddingDigestAlgorithm"])
 
-        data_enc = encoding_utils.Encoding(json_config["dataEncoding"].upper())
+        data_enc = encoding_utils.ClientEncoding(json_config["dataEncoding"].upper())
         self._data_encoding = data_enc
         self._iv_field_name = json_config["ivFieldName"]
         self._encrypted_key_field_name = json_config["encryptedKeyFieldName"]
