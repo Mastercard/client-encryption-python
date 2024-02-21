@@ -1,6 +1,5 @@
 from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA1, SHA224, SHA256, SHA384, SHA512
-#from OpenSSL.crypto import load_certificate, FILETYPE_PEM, FILETYPE_ASN1, Error
 from client_encryption.encryption_exception import CertificateError, PrivateKeyError, HashAlgorithmError
 from cryptography import x509
 from cryptography.hazmat.primitives.serialization import pkcs12 
@@ -26,15 +25,15 @@ def load_encryption_certificate(certificate_path):
         raise CertificateError ("Unable to load certificate.")
     
     try:         
-        type = __get_crypto_file_type(certificate)
+        cert_type = __get_crypto_file_type(certificate)
             
-        if type == FileType.FILETYPE_PEM:
+        if cert_type == FileType.FILETYPE_PEM:
             cert = x509.load_pem_x509_certificate(certificate)
             return cert, Encoding.PEM
-        if type == FileType.FILETYPE_ASN1:
+        if cert_type == FileType.FILETYPE_ASN1:
             cert = x509.load_der_x509_certificate(certificate)
             return cert, Encoding.DER
-        if type == FileType.FILETYPE_INVALID:
+        if cert_type == FileType.FILETYPE_INVALID:
             raise CertificateError("Wrong certificate format.")
     except ValueError:
             raise CertificateError ("Invalid  certificate format.")

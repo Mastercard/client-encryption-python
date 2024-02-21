@@ -21,5 +21,5 @@ setup(name='mastercard-client-encryption',
           'Topic :: Software Development :: Libraries :: Python Modules'
       ],
       tests_require=['coverage'],
-      install_requires=['pycryptodome>=3.8.1', 'setuptools>=69.1.0',"cryptography>=42.0.0" ]
+      install_requires=['pycryptodome>=3.8.1', 'setuptools>=69.1.0', 'cryptography>=42.0.0' ]
       )
