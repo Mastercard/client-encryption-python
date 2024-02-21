@@ -6,7 +6,7 @@ from tests import get_mastercard_config_for_test, JWE_TEST_CONFIG, get_jwe_confi
 import client_encryption.api_encryption as to_test
 
 
-class ApiEncryptionTest(unittest.TestCase):
+class ApiEncryptionJweTest(unittest.TestCase):
 
     def setUp(self):
         self._json_config = json.loads(get_mastercard_config_for_test())

@@ -27,7 +27,7 @@ class FieldLevelEncryptionConfig(object):
         if "encryptionCertificate" in json_config:
             x509_cert, cert_type = load_encryption_certificate(json_config["encryptionCertificate"])
             self._encryption_certificate = x509_cert
-            #Fixed encoding is required, regardless of initial cerrtificate encoding to ensure correct calcualtion of fingerprint value
+            # Fixed encoding is required, regardless of initial certificate encoding to ensure correct calculation of fingerprint value
             self._encryption_certificate_type = Encoding.DER 
             self._encryption_key_fingerprint = \
                 json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(Encoding.DER , PublicFormat.SubjectPublicKeyInfo)))                  
