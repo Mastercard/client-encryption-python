@@ -1,14 +1,15 @@
-import json
 import inspect
+import json
 from enum import Enum
 from functools import wraps
 from warnings import warn
-from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
-from client_encryption.jwe_encryption_config import JweEncryptionConfig
-from client_encryption.session_key_params import SessionKeyParams
+
 from client_encryption.field_level_encryption import encrypt_payload as encrypt_field_level, \
     decrypt_payload as decrypt_field_level
+from client_encryption.field_level_encryption_config import FieldLevelEncryptionConfig
 from client_encryption.jwe_encryption import encrypt_payload as encrypt_jwe, decrypt_payload as decrypt_jwe
+from client_encryption.jwe_encryption_config import JweEncryptionConfig
+from client_encryption.session_key_params import SessionKeyParams
 
 
 class ApiEncryption(object):
@@ -34,7 +35,7 @@ class ApiEncryption(object):
 
         @wraps(func)
         def call_api_function(*args, **kwargs):
-            original_parameters = inspect.signature(func.__self__.call_api).parameters 
+            original_parameters = inspect.signature(func.__self__.call_api).parameters
             check_type_is_none = original_parameters.get("_check_type") is None
             preload_content_is_not_none = original_parameters.get("_preload_content") is not None
             if check_type_is_none and preload_content_is_not_none:
@@ -159,6 +160,7 @@ class ApiEncryption(object):
             encrypted_payload = encrypt_field_level(body, conf)
 
         return encrypted_payload
+
 
 def _contains_param(param_name, headers): return param_name and param_name in headers
 

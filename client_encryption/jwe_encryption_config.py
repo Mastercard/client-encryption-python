@@ -1,10 +1,9 @@
 import json
-
 from Crypto.Hash import SHA256
+from cryptography.hazmat.primitives.serialization import PublicFormat, Encoding
 
 from client_encryption.encoding_utils import ClientEncoding
 from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key
-from cryptography.hazmat.primitives.serialization import PublicFormat, Encoding
 
 
 class JweEncryptionConfig(object):
@@ -29,9 +28,10 @@ class JweEncryptionConfig(object):
             x509_cert, cert_type = load_encryption_certificate(json_config["encryptionCertificate"])
             self._encryption_certificate = x509_cert
             # Fixed encoding is required, regardless of initial certificate encoding to ensure correct calculation of fingerprint value
-            self._encryption_certificate_type = Encoding.DER 
+            self._encryption_certificate_type = Encoding.DER
             self._encryption_key_fingerprint = \
-                json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(Encoding.DER, PublicFormat.SubjectPublicKeyInfo)))                  
+                json_config.get("encryptionKeyFingerprint", self.__compute_fingerprint(
+                    x509_cert.public_key().public_bytes(Encoding.DER, PublicFormat.SubjectPublicKeyInfo)))
         else:
             self._encryption_certificate = None
             self._encryption_key_fingerprint = None
@@ -64,7 +64,7 @@ class JweEncryptionConfig(object):
     @property
     def encryption_certificate(self):
         return self._encryption_certificate
-    
+
     @property
     def encryption_certificate_type(self):
         return self._encryption_certificate_type

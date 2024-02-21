@@ -1,13 +1,15 @@
-from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA1, SHA224, SHA256, SHA384, SHA512
-from client_encryption.encryption_exception import CertificateError, PrivateKeyError, HashAlgorithmError
+from Crypto.PublicKey import RSA
 from cryptography import x509
-from cryptography.hazmat.primitives.serialization import pkcs12 
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.serialization import Encoding
+from cryptography.hazmat.primitives.serialization import pkcs12
 from enum import IntEnum
 
+from client_encryption.encryption_exception import CertificateError, PrivateKeyError, HashAlgorithmError
+
 _SUPPORTED_HASH = {"SHA1": SHA1, "SHA224": SHA224, "SHA256": SHA256, "SHA384": SHA384, "SHA512": SHA512}
+
 
 class FileType(IntEnum):
     FILETYPE_PEM = 0
@@ -18,15 +20,15 @@ class FileType(IntEnum):
 def load_encryption_certificate(certificate_path):
     """Load X509 encryption certificate data at the given file path."""
 
-    try: 
+    try:
         with open(certificate_path, "rb") as cert_content:
             certificate = cert_content.read()
     except IOError:
-        raise CertificateError ("Unable to load certificate.")
-    
-    try:         
+        raise CertificateError("Unable to load certificate.")
+
+    try:
         cert_type = __get_crypto_file_type(certificate)
-            
+
         if cert_type == FileType.FILETYPE_PEM:
             cert = x509.load_pem_x509_certificate(certificate)
             return cert, Encoding.PEM
@@ -36,7 +38,8 @@ def load_encryption_certificate(certificate_path):
         if cert_type == FileType.FILETYPE_INVALID:
             raise CertificateError("Wrong certificate format.")
     except ValueError:
-            raise CertificateError ("Invalid  certificate format.")
+        raise CertificateError("Invalid  certificate format.")
+
 
 def write_encryption_certificate(certificate_path, certificate, cert_type):
     with open(certificate_path, "wb") as f:
@@ -61,7 +64,8 @@ def load_decryption_key(key_file_path, decryption_key_password=None):
 
 def __load_pkcs12_private_key(pkcs_file, password):
     private_key, certs, addcerts = pkcs12.load_key_and_certificates(pkcs_file, password.encode("utf-8"))
-    return private_key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL, serialization.NoEncryption())
+    return private_key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.TraditionalOpenSSL,
+                                     serialization.NoEncryption())
 
 
 def __get_crypto_file_type(file_content):

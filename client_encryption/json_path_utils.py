@@ -1,6 +1,5 @@
 import json
 
-
 _SEPARATOR = "."
 _ROOT_SYMBOL = "$"
 

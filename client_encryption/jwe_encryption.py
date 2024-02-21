@@ -1,6 +1,5 @@
 import copy
 import json
-
 from Crypto.Cipher import AES
 
 from client_encryption.encoding_utils import url_encode_bytes, decode_jwe

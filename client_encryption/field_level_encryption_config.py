@@ -1,9 +1,9 @@
 import json
 from Crypto.Hash import SHA256
-from client_encryption import encoding_utils
-from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key, validate_hash_algorithm
 from cryptography.hazmat.primitives.serialization import PublicFormat, Encoding
 
+from client_encryption import encoding_utils
+from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key, validate_hash_algorithm
 
 
 class FieldLevelEncryptionConfig(object):
@@ -28,12 +28,14 @@ class FieldLevelEncryptionConfig(object):
             x509_cert, cert_type = load_encryption_certificate(json_config["encryptionCertificate"])
             self._encryption_certificate = x509_cert
             # Fixed encoding is required, regardless of initial certificate encoding to ensure correct calculation of fingerprint value
-            self._encryption_certificate_type = Encoding.DER 
+            self._encryption_certificate_type = Encoding.DER
             self._encryption_key_fingerprint = \
-                json_config.get("encryptionKeyFingerprint",self.__compute_fingerprint(x509_cert.public_key().public_bytes(Encoding.DER , PublicFormat.SubjectPublicKeyInfo)))                  
+                json_config.get("encryptionKeyFingerprint", self.__compute_fingerprint(
+                    x509_cert.public_key().public_bytes(Encoding.DER, PublicFormat.SubjectPublicKeyInfo)))
             self._encryption_certificate_fingerprint = \
-                json_config.get("encryptionCertificateFingerprint", self.__compute_fingerprint(x509_cert.public_bytes(Encoding.DER)))
-                               
+                json_config.get("encryptionCertificateFingerprint",
+                                self.__compute_fingerprint(x509_cert.public_bytes(Encoding.DER)))
+
         else:
             self._encryption_certificate = None
             self._encryption_key_fingerprint = None
@@ -54,11 +56,11 @@ class FieldLevelEncryptionConfig(object):
         self._encrypted_key_field_name = json_config["encryptedKeyFieldName"]
         self._encrypted_value_field_name = json_config["encryptedValueFieldName"]
 
-        self._encryption_certificate_fingerprint_field_name =\
+        self._encryption_certificate_fingerprint_field_name = \
             json_config.get("encryptionCertificateFingerprintFieldName", None)
-        self._encryption_key_fingerprint_field_name =\
+        self._encryption_key_fingerprint_field_name = \
             json_config.get("encryptionKeyFingerprintFieldName", None)
-        self._oaep_padding_digest_algorithm_field_name =\
+        self._oaep_padding_digest_algorithm_field_name = \
             json_config.get("oaepPaddingDigestAlgorithmFieldName", None)
 
         self._use_http_headers = json_config.get("useHttpHeaders", False)
@@ -74,6 +76,7 @@ class FieldLevelEncryptionConfig(object):
     @property
     def encryption_certificate_type(self):
         return self._encryption_certificate_type
+
     @property
     def encryption_key_fingerprint(self):
         return self._encryption_key_fingerprint
