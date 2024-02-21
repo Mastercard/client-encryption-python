@@ -3,7 +3,7 @@ from setuptools import setup
 exec(open('client_encryption/version.py').read())
 
 setup(name='mastercard-client-encryption',
-      python_requires='>=3.5.4',
+      python_requires='>=3.8',
       version=__version__,
       description='Mastercard Client encryption.',
       long_description='Library for Mastercard API compliant payload encryption/decryption.',
