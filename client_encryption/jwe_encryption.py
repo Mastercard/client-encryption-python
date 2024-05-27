@@ -1,6 +1,8 @@
 import copy
 import json
 from Crypto.Cipher import AES
+from Crypto.Cipher.AES import block_size
+from Crypto.Util.Padding import unpad, pad
 
 from client_encryption.encoding_utils import url_encode_bytes, decode_jwe
 from client_encryption.encryption_exception import EncryptionError
@@ -95,7 +97,10 @@ def decrypt_payload(payload, config, _params=None):
                     raise EncryptionError("Unsupported decryption method:", decryption_method)
 
                 decrypted = aes.decrypt(cipher_text)
-                decoded_payload = ''.join(c for c in decrypted.decode() if c.isprintable())
+                try:
+                    decoded_payload = unpad(decrypted, block_size)
+                except ValueError:
+                    decoded_payload = decrypted
 
                 if isinstance(json.loads(decoded_payload), list):
                     json_payload = json.loads(decoded_payload)
