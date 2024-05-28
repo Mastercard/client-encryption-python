@@ -2,7 +2,7 @@ import copy
 import json
 from Crypto.Cipher import AES
 from Crypto.Cipher.AES import block_size
-from Crypto.Util.Padding import unpad, pad
+from Crypto.Util.Padding import unpad
 
 from client_encryption.encoding_utils import url_encode_bytes, decode_jwe
 from client_encryption.encryption_exception import EncryptionError
