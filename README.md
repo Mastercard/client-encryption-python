@@ -52,19 +52,19 @@ If you want to use **mastercard-client-encryption** with [Python](https://www.py
 Install the library by pip:
 
 ```bash
-$ pip install mastercard-client-encryption
+pip install mastercard-client-encryption
 ```
 
 Or clone it from git:
 
 ```bash
-$ git clone https://github.com/Mastercard/client-encryption-python.git
+git clone https://github.com/Mastercard/client-encryption-python.git
 ```
 
 and then execute from the repo folder:
 
 ```bash
-$ python3 setup.py install
+python3 setup.py install
 ```
 
 You can then use it as a regular module:
