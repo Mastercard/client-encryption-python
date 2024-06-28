@@ -133,7 +133,10 @@ class ApiEncryption(object):
                 return body
 
         decrypted_body = decrypt_field_level(body, conf, params)
-        payload = json.dumps(decrypted_body).encode('utf-8')
+        try:
+            payload = json.dumps(decrypted_body).encode('utf-8')
+        except:
+            payload = decrypted_body
 
         return payload
 
