@@ -107,7 +107,10 @@ class ApiEncryption(object):
     @staticmethod
     def decrypt_jwe_payload(conf, body):
         decrypted_body = decrypt_jwe(body, conf)
-        payload = json.dumps(decrypted_body).encode('utf-8')
+        try:
+            payload = json.dumps(decrypted_body).encode('utf-8')
+        except:
+            payload = decrypted_body
 
         return payload
 
