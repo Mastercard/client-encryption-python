@@ -290,16 +290,6 @@ config_file_path = "./config.json"
 config = FieldLevelEncryptionConfig(config_file_path)
 ```
 
-For all config options, please see:
-
-- [Configuration object](https://github.com/Mastercard/client-encryption-python/wiki/Configuration-Object) for all config options
-
-We have a predefined set of configurations to use with Mastercard services:
-
-- [Service configurations](https://github.com/Mastercard/client-encryption-python/wiki/Service-Configurations-for-Client-Encryption-Python)
-
-
-
 ##### Performing Mastercard Encryption <a name="performing-mastercard-encryption"></a>
 
 Call `field_level_encryption.encrypt_payload()` with a JSON (dict) request payload, and optional `params` object.
