@@ -34,4 +34,4 @@ jobs:
           pip3 install coverage
       - name: Run Tests
         run: |
-          run setup.py test
+          python3 setup.py build test
