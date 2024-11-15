@@ -35,5 +35,6 @@ jobs:
           pip3 install 'setuptools>=69.1.0' --force-reinstall
       - name: Run Tests
         run: |
-          coverage run setup.py test
-          coverage xml
+          python -m unittest discover
+          # coverage run setup.py test
+          # coverage xml
