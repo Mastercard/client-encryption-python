@@ -23,6 +23,7 @@ class MockService(object):
         if api_client is None:
             api_client = MockApiClient()
         self.api_client = api_client
+        self.api_client.rest_client = api_client
 
     def do_something_get(self, **kwargs):
         return self.api_client.request("GET", "testservice", None, kwargs["headers"])
@@ -60,6 +61,7 @@ class MockApiClient(object):
         json_config = json.loads(get_mastercard_config_for_test())
         json_config["paths"]["$"]["toEncrypt"] = {"data": "encryptedData"}
         json_config["paths"]["$"]["toDecrypt"] = {"encryptedData": "data"}
+        self.rest_client = self
         self._config = encryption_config.FieldLevelEncryptionConfig(json_config)
 
     @mock_signing

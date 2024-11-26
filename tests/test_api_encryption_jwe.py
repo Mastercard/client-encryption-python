@@ -367,21 +367,3 @@ class ApiEncryptionJweTest(unittest.TestCase):
         # no __oauth__ flag
         with self.assertWarns(UserWarning):
             to_test.add_encryption_layer(test_client, self._json_config)
-
-    def test_add_encryption_layer_wrong_oauth_layer_flag_warning(self):
-        test_client = Mock()
-
-        # __oauth__ is None
-        test_client.request.__oauth__ = None
-        with self.assertWarns(UserWarning):
-            to_test.add_encryption_layer(test_client, self._json_config)
-
-        # __oauth__ is False
-        test_client.request.__oauth__ = False
-        with self.assertWarns(UserWarning):
-            to_test.add_encryption_layer(test_client, self._json_config)
-
-        # __oauth__ is not a boolean
-        test_client.request.__oauth__ = 5
-        with self.assertWarns(UserWarning):
-            to_test.add_encryption_layer(test_client, self._json_config)

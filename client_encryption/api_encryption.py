@@ -173,11 +173,10 @@ def _contains_param(param_name, headers): return param_name and param_name in he
 
 def add_encryption_layer(api_client, encryption_conf_file, encryption_type='Mastercard'):
     """Decorate APIClient.call_api with encryption"""
-    api_encryption = ApiEncryption(encryption_conf_file, encryption_type)
-    api_client.request = api_encryption.field_encryption(api_client.request)
-    api_client.call_api = api_encryption.field_encryption_call_api(api_client.call_api)
-
     __check_oauth(api_client)  # warn the user if authentication layer is missing/not set
+    api_encryption = ApiEncryption(encryption_conf_file, encryption_type)
+    api_client.rest_client.request = api_encryption.field_encryption(api_client.rest_client.request)
+    api_client.call_api = api_encryption.field_encryption_call_api(api_client.call_api)
 
 
 def __check_oauth(api_client):
