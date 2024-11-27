@@ -52,9 +52,6 @@ class ApiEncryption(object):
         @wraps(func)
         def call_api_function(*args, **kwargs):
             """Wrap call_api and add field encryption layer to it."""
-
-            check_type = inspect.signature(func.__self__.call_api).parameters.get("_check_type") is not None
-
             in_body = kwargs.get("body", None)
 
             in_headers = kwargs.get("headers", None)
@@ -63,10 +60,7 @@ class ApiEncryption(object):
 
             response = func(*args, **kwargs)
 
-            if check_type:
-                response.data = self._decrypt_payload(response.getheaders(), response.data)
-            else:
-                response._body = self._decrypt_payload(response.getheaders(), response.data)
+            response.data = self._decrypt_payload(response.getheaders(), response.data)
 
             return response
 
