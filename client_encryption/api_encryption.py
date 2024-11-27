@@ -60,7 +60,7 @@ class ApiEncryption(object):
 
             response = func(*args, **kwargs)
 
-            response.data = self._decrypt_payload(response.getheaders(), response.data)
+            response.data = self._decrypt_payload(response.getheaders(), response.response.data)
 
             return response
 
