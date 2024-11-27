@@ -105,9 +105,9 @@ class MockApiClient(object):
         response.getheaders = mock_headers
 
         if method in ["GET", "POST", "PUT"]:
-            response.data = json_resp
+            response.response.data = json_resp
         else:
-            response.data = "OK" if check == 0 else "KO"
+            response.response.data = "OK" if check == 0 else "KO"
 
         return response
 
