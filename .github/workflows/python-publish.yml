@@ -20,7 +20,8 @@ jobs:
       - name: Build release distributions
         run: |
           pip3 install setuptools_rust
-          python3 setup.py build test
+          pytest
+          python3 setup.py build
 
       - name: Publish to Test PyPI
         run: |
