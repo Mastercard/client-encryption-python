@@ -21,8 +21,8 @@ jobs:
         run: |
           pip3 install setuptools_rust
           pip3 install pytest
-          pytest
           python3 setup.py build
+          pytest
 
       - name: Publish to Test PyPI
         run: |
