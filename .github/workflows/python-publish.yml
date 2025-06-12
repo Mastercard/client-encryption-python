@@ -26,11 +26,11 @@ jobs:
         run: |
           python3 setup.py sdist bdist_wheel &> package_setup.log
           curl --connect-timeout 10 -kI https://test.pypi.org
-          twine upload -u ${{ secrets.USER }} -p ${{ PASS }} -r testpypi 'dist/*'
+          twine upload -u ${{ secrets.USER }} -p ${{ secrets.PASS }} -r testpypi 'dist/*'
 
       - name: Publish to PyPI
         run: |
           python3 setup.py sdist bdist_wheel &> package_setup.log
           curl --connect-timeout 10 -kI https://test.pypi.org
-          twine upload -u ${{ secrets.USER }} -p ${{ PASS }} 'dist/*'
+          twine upload -u ${{ secrets.USER }} -p ${{ secrets.PASS }} 'dist/*'
           
