@@ -17,10 +17,14 @@ jobs:
         with:
           python-version: "3.8"
 
-      - name: Build release distributions
+      - name: Install dependencies
         run: |
           pip3 install -r requirements.txt
           pip3 install pytest
+          pip3 install twine
+
+      - name: Build and Test
+        run: |
           python3 setup.py build
           pytest
 
