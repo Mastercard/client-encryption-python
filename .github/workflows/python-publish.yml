@@ -1,0 +1,36 @@
+name: Upload Python Package
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  release-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.8"
+
+      - name: Build release distributions
+        run: |
+          pip3 install setuptools_rust
+          python3 setup.py build test
+
+      - name: Publish to Test PyPI
+        run: |
+          python3 setup.py sdist bdist_wheel &> package_setup.log
+          curl --connect-timeout 10 -kI https://test.pypi.org
+          twine upload -u ${{ secrets.USER }} -p ${{ PASS }} -r testpypi 'dist/*'
+
+      - name: Publish to PyPI
+        run: |
+          python3 setup.py sdist bdist_wheel &> package_setup.log
+          curl --connect-timeout 10 -kI https://test.pypi.org
+          twine upload -u ${{ secrets.USER }} -p ${{ PASS }} 'dist/*'
+          
