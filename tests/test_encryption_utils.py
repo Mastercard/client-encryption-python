@@ -146,18 +146,18 @@ class EncryptionUtilsTest(unittest.TestCase):
             ("decryptionKey", "keyStorePassword", "wrong-password","keys/invalid.p12"),
             ("keyStore", "decryptionKeyPassword", "wrong-password","keys/invalid.p12"),
             ("keyStore", "keyStorePassword", "wrong-password", "keys/invalid.p12"),
-            
+
             # invalid p12 files
             ("decryptionKey", "decryptionKeyPassword", "Password1", "keys/invalid.p12"),
             ("decryptionKey", "keyStorePassword", "Password1","keys/invalid.p12"),
             ("keyStore", "decryptionKeyPassword", "Password1","keys/invalid.p12"),
             ("keyStore", "keyStorePassword", "Password1", "keys/invalid.p12"),
 
-            # der files
+            # invalid der files
             ("keyStore", None, None, "keys/invalid-2048.der"),
             ("decryptionKey", None, None, "keys/invalid-2048.der"),
 
-            # pem files
+            # invalid pem files
             ("keyStore", None, None, "keys/invalid-2048.pem"),
             ("decryptionKey", None, None, "keys/invalid-2048.pem"),
         ]
@@ -168,7 +168,7 @@ class EncryptionUtilsTest(unittest.TestCase):
                     key_field: resource_path(file),
                 }
 
-                if password_field is not None:
+                if password is not None:
                     config[password_field] = password
                 
                 self.assertRaises(PrivateKeyError, to_test.load_decryption_key, config)
