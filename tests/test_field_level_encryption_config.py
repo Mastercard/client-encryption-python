@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch, MagicMock
 from tests import resource_path, get_mastercard_config_for_test
 import json
 import client_encryption.field_level_encryption_config as to_test
@@ -135,6 +136,33 @@ class FieldLevelEncryptionConfigTest(unittest.TestCase):
         wrong_json["decryptionKey"] = resource_path("keys/wrong_private_key_name.pem")
 
         self.assertRaises(PrivateKeyError, to_test.FieldLevelEncryptionConfig, wrong_json)
+
+    @patch('client_encryption.field_level_encryption_config.load_decryption_key_from_config')
+    def test_load_config_uses_load_decryption_key_from_config(self, mock_load_key):
+        """Test that FieldLevelEncryptionConfig uses load_decryption_key_from_config"""
+        mock_keys = [MagicMock(), None]
+
+        for mock_key in mock_keys:
+            with self.subTest(mock_key=mock_key):
+                mock_load_key.return_value = mock_key
+        
+                json_conf = json.loads(self._test_config_file)
+                conf = to_test.FieldLevelEncryptionConfig(json_conf)
+        
+                mock_load_key.assert_called_with(json_conf)
+                self.assertEqual(conf.decryption_key, mock_key)
+    
+    @patch('client_encryption.field_level_encryption_config.load_decryption_key_from_config')
+    def test_load_config_propagates_key_loading_exceptions(self, mock_load_key):
+        """Test that FieldLevelEncryptionConfig propagates exceptions from load_decryption_key_from_config"""
+        mock_load_key.side_effect = PrivateKeyError("some error")
+        
+        json_conf = json.loads(self._test_config_file)
+        
+        with self.assertRaises(PrivateKeyError):
+            to_test.FieldLevelEncryptionConfig(json_conf)
+        
+        mock_load_key.assert_called_once_with(json_conf)
 
     def test_load_config_missing_oaep_padding_algorithm(self):
         wrong_json = json.loads(self._test_config_file)
