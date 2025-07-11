@@ -116,7 +116,7 @@ decrypted_response_payload = decrypt_payload(body, config)
 
 ##### Configuring the JWE Encryption <a name="configuring-the-jwe-encryption"></a>
 
-`jwe_encryption` needs a config dictionary to instruct how to decrypt/decrypt the payloads. Example:
+`jwe_encryption` needs a config dictionary to instruct how to encrypt/decrypt the payloads. Example:
 
 ```json
 {
@@ -133,6 +133,15 @@ decrypted_response_payload = decrypt_payload(body, config)
   "encryptedValueFieldName": "encryptedData",
   "encryptionCertificate": "./path/to/public.cert",
   "decryptionKey": "./path/to/your/private.key",
+}
+```
+You can also pass in a PKCS12 file with the password to decrypt it:
+```json
+{
+  // .... rest of the config
+
+  "decryptionKey": "./path/to/your/certStore.p12", // or "keyStore": "./path/to/your/certStore.p12",
+  "decryptionKeyPassword": "the-password", // or "keyStorePassword": "the-password",
 }
 ```
 
@@ -272,6 +281,15 @@ decrypted_response_payload = decrypt_payload(body, config)
   "encryptionCertificate": "./path/to/public.cert",
   "decryptionKey": "./path/to/your/private.key",
   "oaepPaddingDigestAlgorithm": "SHA256"
+}
+```
+You can also pass in a PKCS12 file with the password to decrypt it:
+```json
+{
+  // .... rest of the config
+
+  "decryptionKey": "./path/to/your/certStore.p12", // or "keyStore": "./path/to/your/certStore.p12",
+  "decryptionKeyPassword": "the-password", // or "keyStorePassword": "the-password",
 }
 ```
 

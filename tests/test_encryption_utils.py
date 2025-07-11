@@ -107,6 +107,81 @@ class EncryptionUtilsTest(unittest.TestCase):
 
         self.assertRaises(PrivateKeyError, to_test.load_decryption_key, key_path)
 
+    def test_load_decryption_key_from_config_with_password_aliases(self):
+        test_cases = [
+            # p12 files
+            ("decryptionKey", "decryptionKeyPassword", "keys/test_key.p12", self._pkcs12),
+            ("decryptionKey", "keyStorePassword", "keys/test_key.p12", self._pkcs12),
+            ("keyStore", "decryptionKeyPassword", "keys/test_key.p12", self._pkcs12),
+            ("keyStore", "keyStorePassword", "keys/test_key.p12", self._pkcs12),
+
+            # der files
+            ("keyStore", None, "keys/test_key_pkcs8-2048.der", self._pkcs8_2048),
+            ("decryptionKey", None, "keys/test_key_pkcs8-2048.der", self._pkcs8_2048),
+
+            # pem files
+            ("keyStore", None, "keys/test_key_pkcs8-2048.pem", self._pkcs8_2048),
+            ("decryptionKey", None, "keys/test_key_pkcs8-2048.pem", self._pkcs8_2048),
+        ]
+        
+        for key_field, password_field, file, expected_key in test_cases:
+            with self.subTest(key=key_field, password_field=password_field, file=file, expected_key=expected_key):
+                config = {
+                    key_field: resource_path(file),
+                }
+
+                if password_field is not None:
+                    config[password_field] = "Password1"
+                
+                key = to_test.load_decryption_key_from_config(config)
+                
+                self.assertIsNotNone(key)
+                self.assertIsInstance(key, RSA.RsaKey, "Must be RSA key")
+                self.assertEqual(expected_key, self.__strip_key(key), "Decryption key does not match")
+
+    def test_load_decryption_key_from_config_invalid_file_or_password(self):
+        test_cases = [
+            # valid p12 files with wrong password
+            ("decryptionKey", "decryptionKeyPassword", "wrong-password", "keys/invalid.p12"),
+            ("decryptionKey", "keyStorePassword", "wrong-password","keys/invalid.p12"),
+            ("keyStore", "decryptionKeyPassword", "wrong-password","keys/invalid.p12"),
+            ("keyStore", "keyStorePassword", "wrong-password", "keys/invalid.p12"),
+
+            # invalid p12 files
+            ("decryptionKey", "decryptionKeyPassword", "Password1", "keys/invalid.p12"),
+            ("decryptionKey", "keyStorePassword", "Password1","keys/invalid.p12"),
+            ("keyStore", "decryptionKeyPassword", "Password1","keys/invalid.p12"),
+            ("keyStore", "keyStorePassword", "Password1", "keys/invalid.p12"),
+
+            # invalid der files
+            ("keyStore", None, None, "keys/invalid-2048.der"),
+            ("decryptionKey", None, None, "keys/invalid-2048.der"),
+
+            # invalid pem files
+            ("keyStore", None, None, "keys/invalid-2048.pem"),
+            ("decryptionKey", None, None, "keys/invalid-2048.pem"),
+        ]
+        
+        for key_field, password_field, password, file in test_cases:
+            with self.subTest(key=key_field, password_field=password_field, password=password, file=file):
+                config = {
+                    key_field: resource_path(file),
+                }
+
+                if password is not None:
+                    config[password_field] = password
+                
+                self.assertRaises(PrivateKeyError, to_test.load_decryption_key, config)
+
+    def test_load_decryption_key_from_config_no_key_field(self):
+        """Test load_decryption_key_from_config returns None when no key field present"""
+        configs = [{}, {"not-decryptionKey": "value"}]
+        for config in configs:
+            with self.subTest(config):
+                key = to_test.load_decryption_key_from_config(config)
+                self.assertIsNone(key)
+
+
     def test_load_hash_algorithm(self):
         hash_algo = to_test.load_hash_algorithm("SHA224")
 

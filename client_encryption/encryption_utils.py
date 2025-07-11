@@ -45,6 +45,33 @@ def write_encryption_certificate(certificate_path, certificate, cert_type):
     with open(certificate_path, "wb") as f:
         f.write(certificate.public_bytes(cert_type))
 
+def __get_config_value(config, key_aliases):
+    """
+    Helper for getting config values which have aliases
+    Args:
+      config: The config dictionary
+      key_aliases: List of key aliases
+    """
+
+    for key in key_aliases:
+        if key in config:
+            return config[key]
+    return None
+
+def load_decryption_key_from_config(config):
+    """
+    Helper for reading decryption key from the config
+    Args:
+      config: The config dictionary
+    """
+
+    key_file_path = __get_config_value(config, ["decryptionKey", "keyStore"])
+    if not key_file_path:
+        return None
+    
+    password = __get_config_value(config, ["decryptionKeyPassword", "keyStorePassword"])
+
+    return load_decryption_key(key_file_path, password)
 
 def load_decryption_key(key_file_path, decryption_key_password=None):
     """Load a RSA decryption key."""
