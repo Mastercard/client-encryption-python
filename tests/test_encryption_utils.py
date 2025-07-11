@@ -139,31 +139,37 @@ class EncryptionUtilsTest(unittest.TestCase):
                 self.assertIsInstance(key, RSA.RsaKey, "Must be RSA key")
                 self.assertEqual(expected_key, self.__strip_key(key), "Decryption key does not match")
 
-    def test_load_decryption_key_from_config_invalid_file(self):
+    def test_load_decryption_key_from_config_invalid_file_or_password(self):
         test_cases = [
-            # p12 files
-            ("decryptionKey", "decryptionKeyPassword", "keys/invalid.p12"),
-            ("decryptionKey", "keyStorePassword", "keys/invalid.p12"),
-            ("keyStore", "decryptionKeyPassword", "keys/invalid.p12"),
-            ("keyStore", "keyStorePassword", "keys/invalid.p12"),
+            # valid p12 files with wrong password
+            ("decryptionKey", "decryptionKeyPassword", "wrong-password", "keys/invalid.p12"),
+            ("decryptionKey", "keyStorePassword", "wrong-password","keys/invalid.p12"),
+            ("keyStore", "decryptionKeyPassword", "wrong-password","keys/invalid.p12"),
+            ("keyStore", "keyStorePassword", "wrong-password", "keys/invalid.p12"),
+            
+            # invalid p12 files
+            ("decryptionKey", "decryptionKeyPassword", "Password1", "keys/invalid.p12"),
+            ("decryptionKey", "keyStorePassword", "Password1","keys/invalid.p12"),
+            ("keyStore", "decryptionKeyPassword", "Password1","keys/invalid.p12"),
+            ("keyStore", "keyStorePassword", "Password1", "keys/invalid.p12"),
 
             # der files
-            ("keyStore", None, "keys/invalid-2048.der"),
-            ("decryptionKey", None, "keys/invalid-2048.der"),
+            ("keyStore", None, None, "keys/invalid-2048.der"),
+            ("decryptionKey", None, None, "keys/invalid-2048.der"),
 
             # pem files
-            ("keyStore", None, "keys/invalid-2048.pem"),
-            ("decryptionKey", None, "keys/invalid-2048.pem"),
+            ("keyStore", None, None, "keys/invalid-2048.pem"),
+            ("decryptionKey", None, None, "keys/invalid-2048.pem"),
         ]
         
-        for key_field, password_field, invalid_file in test_cases:
-            with self.subTest(key=key_field, password_field=password_field, invalid_file=invalid_file):
+        for key_field, password_field, password, file in test_cases:
+            with self.subTest(key=key_field, password_field=password_field, password=password, file=file):
                 config = {
-                    key_field: resource_path(invalid_file),
+                    key_field: resource_path(file),
                 }
 
                 if password_field is not None:
-                    config[password_field] = "Password1"
+                    config[password_field] = password
                 
                 self.assertRaises(PrivateKeyError, to_test.load_decryption_key, config)
 
