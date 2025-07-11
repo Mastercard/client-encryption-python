@@ -135,6 +135,15 @@ decrypted_response_payload = decrypt_payload(body, config)
   "decryptionKey": "./path/to/your/private.key",
 }
 ```
+You can also pass in a PKCS12 file with the password to decrypt it:
+```json
+{
+  // .... rest of the config
+
+  "decryptionKey": "./path/to/your/keyStore.p12",
+  "decryptionKeyPassword": "the-password",
+}
+```
 
 The above can be either stored to a file or passed to 'JweEncryptionConfig' as dictionary:
 ```python
@@ -272,6 +281,15 @@ decrypted_response_payload = decrypt_payload(body, config)
   "encryptionCertificate": "./path/to/public.cert",
   "decryptionKey": "./path/to/your/private.key",
   "oaepPaddingDigestAlgorithm": "SHA256"
+}
+```
+You can also pass in a PKCS12 file with the password to decrypt it:
+```json
+{
+  // .... rest of the config
+
+  "decryptionKey": "./path/to/your/keyStore.p12",
+  "decryptionKeyPassword": "the-password",
 }
 ```
 
