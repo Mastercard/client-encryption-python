@@ -3,7 +3,7 @@ from Crypto.Hash import SHA256
 from cryptography.hazmat.primitives.serialization import PublicFormat, Encoding
 
 from client_encryption.encoding_utils import ClientEncoding
-from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key
+from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key_from_config
 
 
 class JweEncryptionConfig(object):
@@ -37,11 +37,7 @@ class JweEncryptionConfig(object):
             self._encryption_key_fingerprint = None
             self._encryption_certificate_type = None
 
-        if "decryptionKey" in json_config:
-            decryption_key_password = json_config.get("decryptionKeyPassword", None)
-            self._decryption_key = load_decryption_key(json_config["decryptionKey"], decryption_key_password)
-        else:
-            self._decryption_key = None
+        self._decryption_key = load_decryption_key_from_config(json_config)
 
         self._encrypted_value_field_name = json_config["encryptedValueFieldName"]
 

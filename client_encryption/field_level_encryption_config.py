@@ -3,7 +3,7 @@ from Crypto.Hash import SHA256
 from cryptography.hazmat.primitives.serialization import PublicFormat, Encoding
 
 from client_encryption import encoding_utils
-from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key, validate_hash_algorithm
+from client_encryption.encryption_utils import load_encryption_certificate, load_decryption_key_from_config, validate_hash_algorithm
 
 
 class FieldLevelEncryptionConfig(object):
@@ -42,11 +42,7 @@ class FieldLevelEncryptionConfig(object):
             self._encryption_certificate_fingerprint = None
             self._encryption_certificate_type = None
 
-        if "decryptionKey" in json_config:
-            decryption_key_password = json_config.get("decryptionKeyPassword", None)
-            self._decryption_key = load_decryption_key(json_config["decryptionKey"], decryption_key_password)
-        else:
-            self._decryption_key = None
+        self._decryption_key = load_decryption_key_from_config(json_config)
 
         self._oaep_padding_digest_algorithm = validate_hash_algorithm(json_config["oaepPaddingDigestAlgorithm"])
 
