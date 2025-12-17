@@ -45,6 +45,9 @@ class JweEncryptionConfig(object):
 
         self._encrypted_value_field_name = json_config["encryptedValueFieldName"]
 
+        # Optional support for verifying HMAC auth tags on AES-CBC encrypted payloads
+        self._enable_cbc_hmac_verification = json_config.get("enableCbcHmacVerification", False)
+
         # Fixed properties
         self._data_encoding = ClientEncoding.BASE64
         self._oaep_padding_digest_algorithm = "SHA256"
@@ -80,6 +83,10 @@ class JweEncryptionConfig(object):
     @property
     def encrypted_value_field_name(self):
         return self._encrypted_value_field_name
+
+    @property
+    def enable_cbc_hmac_verification(self):
+        return self._enable_cbc_hmac_verification
 
     @staticmethod
     def __compute_fingerprint(asn1):

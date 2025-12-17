@@ -100,6 +100,17 @@ class JweEncryptionConfigTest(unittest.TestCase):
         conf = to_test.JweEncryptionConfig(json_conf)
         self.assertIsNone(conf.decryption_key)
 
+    def test_load_config_hmac_verification_default_disabled(self):
+        conf = to_test.JweEncryptionConfig(self._test_config_file)
+        self.assertFalse(conf.enable_cbc_hmac_verification)
+
+    def test_load_config_hmac_verification_enabled(self):
+        json_conf = json.loads(self._test_config_file)
+        json_conf["enableCbcHmacVerification"] = True
+
+        conf = to_test.JweEncryptionConfig(json_conf)
+        self.assertTrue(conf.enable_cbc_hmac_verification)
+
     def test_load_config_decryption_key_file_not_found(self):
         wrong_json = json.loads(self._test_config_file)
         wrong_json["decryptionKey"] = resource_path("keys/wrong_private_key_name.pem")
@@ -127,3 +138,4 @@ class JweEncryptionConfigTest(unittest.TestCase):
                          conf.encryption_key_fingerprint, "Wrong public key fingerprint")
 
         self.assertEqual(oaep_algo, conf.oaep_padding_digest_algorithm, "Oaep padding algorithm not set")
+        self.assertFalse(conf.enable_cbc_hmac_verification)

@@ -2,6 +2,7 @@ import copy
 import json
 from Crypto.Cipher import AES
 from Crypto.Cipher.AES import block_size
+from Crypto.Hash import HMAC, SHA256
 from Crypto.Util.Padding import unpad
 
 from client_encryption.encoding_utils import url_encode_bytes, decode_jwe
@@ -83,12 +84,19 @@ def decrypt_payload(payload, config, _params=None):
                 params = SessionKeyParams(config, encrypted_key, iv, 'SHA256')
                 key = params.key
 
-                header = json.loads(decode_jwe(encrypted_value[0]))
+                protected_header = encrypted_value[0]
+                header = json.loads(decode_jwe(protected_header))
                 cipher_text = decode_jwe(encrypted_value[3])
+                auth_tag = decode_jwe(encrypted_value[4]) if len(encrypted_value) > 4 else None
                 decryption_method = header['enc']
 
                 if decryption_method == 'A128CBC-HS256':
-                    aes = AES.new(key[16:], AES.MODE_CBC, iv)  # NOSONAR
+                    mac_key, enc_key = _split_cbc_keys(key)
+                    if config.enable_cbc_hmac_verification:
+                        aad = protected_header.encode("ascii")
+                        _verify_cbc_hmac_tag(mac_key, aad, iv, cipher_text, auth_tag)
+
+                    aes = AES.new(enc_key, AES.MODE_CBC, iv)  # NOSONAR
                 elif decryption_method == 'A128GCM' or decryption_method == 'A192GCM' or decryption_method == 'A256GCM':
                     aad = json.dumps(header).encode("ascii")
                     aes = AES.new(key, AES.MODE_GCM, iv)
@@ -143,3 +151,32 @@ def _build_header(alg, enc, cty, kid):
         sort_keys=False
     )
     return json_header
+
+
+def _split_cbc_keys(cek):
+    if len(cek) != 32:
+        raise EncryptionError("Invalid content encryption key length for AES-CBC HMAC.")
+
+    return cek[:16], cek[16:]
+
+
+def _verify_cbc_hmac_tag(mac_key, aad, iv, cipher_text, auth_tag):
+    if not auth_tag:
+        raise EncryptionError("Authentication tag missing for AES-CBC encrypted payload.")
+
+    expected_tag = _compute_cbc_auth_tag(mac_key, aad, iv, cipher_text)
+
+    if expected_tag != auth_tag:
+        raise EncryptionError("Authentication tag verification failed for AES-CBC encrypted payload.")
+
+
+def _compute_cbc_auth_tag(mac_key, aad, iv, cipher_text):
+    al = (len(aad) * 8).to_bytes(8, byteorder="big")
+
+    hmac = HMAC.new(mac_key, digestmod=SHA256)
+    hmac.update(aad)
+    hmac.update(iv)
+    hmac.update(cipher_text)
+    hmac.update(al)
+
+    return hmac.digest()[:16]

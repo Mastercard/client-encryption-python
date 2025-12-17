@@ -237,6 +237,22 @@ Output:
 }
 ```
 
+  ###### AES-CBC HMAC Authentication (A128CBC-HS256)
+
+  When decrypting JWE payloads that use AES-CBC with HMAC (enc `A128CBC-HS256`), you can enable authentication tag verification by adding the following optional flag to your JWE config:
+
+  ```json
+  {
+    "enableCbcHmacVerification": true
+  }
+  ```
+
+  - **Default**: disabled (for backward compatibility). When disabled, AES-CBC payloads decrypt without verifying the HMAC tag.
+  - **When enabled**: the library validates the HMAC tag using the first half of the CEK as the MAC key and rejects payloads with missing or incorrect tags.
+  - **Scope**: applies only to `A128CBC-HS256`; GCM modes already provide authentication.
+
+  Enable this when both producer and consumer support HMAC verification and you require authenticity protection for AES-CBC encrypted payloads.
+
 #### Mastercard Encryption and Decryption <a name="mastercard-encryption-and-decryption"></a>
 
 + [Introduction](#mastercard-introduction)
