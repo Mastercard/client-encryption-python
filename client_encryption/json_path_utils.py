@@ -99,9 +99,9 @@ def cleanup_node(tree, path, target):
                 node = __get_node(tree, parent, False)
             else:
                 node = tree
-            if type(node) is list and not node[0][to_delete]:
-                del node[0][to_delete]
-            elif not node[to_delete]:
+            if type(node) is list:
+                node = node[0]
+            if not node[to_delete]:
                 del node[to_delete]
 
     else:
