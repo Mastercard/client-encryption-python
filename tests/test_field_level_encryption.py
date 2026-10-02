@@ -17,6 +17,18 @@ class FieldLevelEncryptionTest(unittest.TestCase):
         self._config._paths["$"]._to_encrypt = {"data": "encryptedData"}
         self._config._paths["$"]._to_decrypt = {"encryptedData": "data"}
 
+    def test_decrypt_array_preserves_encrypted_node_metadata(self):
+        payload = [{"data": {"message": "hello"}}]
+        encrypted = to_test.encrypt_payload(payload, self._config)
+        encrypted[0]["encryptedData"]["metadata"] = "keep"
+
+        decrypted = to_test.decrypt_payload(encrypted, self._config)
+
+        self.assertEqual(
+            [{"data": {"message": "hello"}, "encryptedData": {"metadata": "keep"}}],
+            decrypted,
+        )
+
     def test_encrypt_bytes(self):
         iv_value = base64.b64decode("VNm/scgd1jhWF0z4+Qh6MA==")
         key_kalue = base64.b64decode("mZzmzoURXI3Vk0vdsPkcFw==")
