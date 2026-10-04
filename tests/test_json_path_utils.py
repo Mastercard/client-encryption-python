@@ -298,6 +298,18 @@ class JsonPathUtilsTest(unittest.TestCase):
         self.assertDictEqual({"node1": {"node2": {}}}, node)
         self.assertDictEqual({"node1": {"node2": {}}}, sample_json)
 
+    def test_cleanup_node_shared_name_prefix(self):
+        for target in ("node1.node20", "node1.node2Other.child"):
+            with self.subTest(target=target):
+                sample_json = {"node1": {"node2": {}}}
+                to_test.cleanup_node(sample_json, "node1.node2", target)
+                self.assertEqual({"node1": {}}, sample_json)
+
+    def test_cleanup_node_same_target(self):
+        sample_json = {"node1": {"node2": {}}}
+        to_test.cleanup_node(sample_json, "node1.node2", "node1.node2")
+        self.assertEqual({"node1": {"node2": {}}}, sample_json)
+
     def test_cleanup_node_empty_path(self):
         sample_json = self.__get_sample_json()
         self.assertRaises(ValueError, to_test.cleanup_node, sample_json, None, "target")
