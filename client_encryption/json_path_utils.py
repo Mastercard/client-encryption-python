@@ -7,7 +7,7 @@ _ROOT_SYMBOL = "$"
 def __not_root(path): return path != _ROOT_SYMBOL
 
 
-def __target_in_path(path, target): return target and target.startswith(path)
+def __target_in_path(path, target): return target and (target == path or target.startswith(path + _SEPARATOR))
 
 
 def get_node(tree, path, create=False):
